@@ -5,7 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Entities\" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="3.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="3.0.3" />
   </ItemGroup>
 
 </Project>
