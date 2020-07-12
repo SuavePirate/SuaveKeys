@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29409.12
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuaveKeys.Core.Models", "SuaveKeys.Core.Models\SuaveKeys.Core.Models.csproj", "{950F875D-E485-495D-8694-65D23BBDF99E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuaveKeys.Core.Models", "SuaveKeys.Core.Models\SuaveKeys.Core.Models.csproj", "{950F875D-E485-495D-8694-65D23BBDF99E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuaveKeys.Api", "SuaveKeys.Api\SuaveKeys.Api.csproj", "{B05D9B3C-2913-42BD-B17E-F23C3FF7B3A2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuaveKeys.Api", "SuaveKeys.Api\SuaveKeys.Api.csproj", "{B05D9B3C-2913-42BD-B17E-F23C3FF7B3A2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuaveKeys.Clients.Windows", "SuaveKeys.Clients.Windows\SuaveKeys.Clients.Windows.csproj", "{D552A275-BFEB-480E-BEB0-F59D9A4C21E7}"
 EndProject
@@ -17,13 +17,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "03 - Clients", "03 - Client
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "04 - Tests", "04 - Tests", "{62C55F53-B93D-4585-A8BF-4F5BCA07E5E9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuaveKeys.Infrastructure.Data", "SuaveKeys.Infrastructure.Data\SuaveKeys.Infrastructure.Data.csproj", "{4F217BC6-2122-43FB-B057-CB02FBCB3D50}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuaveKeys.Infrastructure.Data", "SuaveKeys.Infrastructure.Data\SuaveKeys.Infrastructure.Data.csproj", "{4F217BC6-2122-43FB-B057-CB02FBCB3D50}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuaveKeys.Infrastructure.Business", "SuaveKeys.Infrastructure.Business\SuaveKeys.Infrastructure.Business.csproj", "{8ED61E34-C83F-49AF-8B49-0FA1C13BBDB0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuaveKeys.Infrastructure.Business", "SuaveKeys.Infrastructure.Business\SuaveKeys.Infrastructure.Business.csproj", "{8ED61E34-C83F-49AF-8B49-0FA1C13BBDB0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuaveKeys.Core.Data", "SuaveKeys.Core.Data\SuaveKeys.Core.Data.csproj", "{55D171C6-B2F3-4EF7-A0F0-FE05DD067C1B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuaveKeys.Core.Data", "SuaveKeys.Core.Data\SuaveKeys.Core.Data.csproj", "{55D171C6-B2F3-4EF7-A0F0-FE05DD067C1B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuaveKeys.Core.Business", "SuaveKeys.Core.Business\SuaveKeys.Core.Business.csproj", "{A0788AD4-438D-4C8E-8144-D72B817B65F6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuaveKeys.Core.Business", "SuaveKeys.Core.Business\SuaveKeys.Core.Business.csproj", "{A0788AD4-438D-4C8E-8144-D72B817B65F6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

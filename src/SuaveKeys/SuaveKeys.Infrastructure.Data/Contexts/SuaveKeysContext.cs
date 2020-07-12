@@ -8,10 +8,21 @@ using System.Text;
 
 namespace SuaveKeys.Infrastructure.Data.Contexts
 {
-    public class SuaveKeysContext : IdentityDbContext<SuaveKeysUser, SuaveKeysUserRole, string>
+    public class SuaveKeysContext : DbContext
     {
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<AuthClient> AuthClients { get; set; }
+        public DbSet<User> Users { get; set; }
+
         public SuaveKeysContext(DbContextOptions options) : base(options)
         {
+        }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            builder.Entity<RefreshToken>().HasAlternateKey(r => r.Token);
         }
     }
 }
