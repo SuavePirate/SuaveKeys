@@ -21,5 +21,10 @@ namespace SuaveKeys.Infrastructure.Data.Repositories
             return await _data.Where(a => a.Id == id && a.Secret == secret)
                 .FirstOrDefaultAsync();
         }
+        public async Task<AuthClient> FindById(string id)
+        {
+            return await _data.Where(a => a.Id == id)
+                .FirstOrDefaultAsync();
+        }
     }
 }

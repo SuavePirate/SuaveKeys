@@ -68,6 +68,8 @@ namespace SuaveKeys.Api
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
             services.AddScoped<IAuthClientRepository, AuthClientRepository>();
+            services.AddScoped<IAuthorizationCodeRepository, AuthorizationCodeRepository>();
+
             services.AddScoped<IUserAuthenticationService, UserAuthenticationService>();
             services.AddScoped<IHashProvider, SecureHashProvider>();
             services.AddScoped<IUserService, UserService>();

@@ -17,6 +17,9 @@ namespace SuaveKeys.Core.Models.Entities
         public DateTime CreatedDate { get; set; }
         [Required]
         public DateTime ModifiedDate { get; set; }
+        public string AuthCodeRedirectUrlHost { get; set; } // used for auth code grant flow
+        public string TokenRedirectUrlHost { get; set; } // used for validation
+        public string OriginHost { get; set; }
 
         public virtual ICollection<RefreshToken> RefreshTokens { get; set; }
     }

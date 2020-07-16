@@ -13,6 +13,7 @@ namespace SuaveKeys.Infrastructure.Data.Contexts
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<AuthClient> AuthClients { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<AuthorizationCode> AuthorizationCodes { get; set; }
 
         public SuaveKeysContext(DbContextOptions options) : base(options)
         {

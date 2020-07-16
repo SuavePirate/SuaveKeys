@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SuaveKeys.Infrastructure.Data.Contexts;
@@ -9,9 +10,10 @@ using SuaveKeys.Infrastructure.Data.Contexts;
 namespace SuaveKeys.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(SuaveKeysContext))]
-    partial class SuaveKeysContextModelSnapshot : ModelSnapshot
+    [Migration("20200715225252_AuthCode")]
+    partial class AuthCode
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -37,9 +39,6 @@ namespace SuaveKeys.Infrastructure.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("OriginHost")
-                        .HasColumnType("text");
-
                     b.Property<string>("Secret")
                         .IsRequired()
                         .HasColumnType("text");
@@ -63,9 +62,6 @@ namespace SuaveKeys.Infrastructure.Data.Migrations
                     b.Property<string>("ChallengeCode")
                         .HasColumnType("text");
 
-                    b.Property<string>("ChallengeMethod")
-                        .HasColumnType("text");
-
                     b.Property<string>("Code")
                         .HasColumnType("text");
 
@@ -75,17 +71,9 @@ namespace SuaveKeys.Infrastructure.Data.Migrations
                     b.Property<DateTime>("ExpirationDate")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<string>("State")
-                        .HasColumnType("text");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
-
                     b.HasKey("Id");
 
                     b.HasIndex("AuthClientId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("AuthorizationCodes");
                 });
@@ -153,10 +141,6 @@ namespace SuaveKeys.Infrastructure.Data.Migrations
                     b.HasOne("SuaveKeys.Core.Models.Entities.AuthClient", "AuthClient")
                         .WithMany()
                         .HasForeignKey("AuthClientId");
-
-                    b.HasOne("SuaveKeys.Core.Models.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("SuaveKeys.Core.Models.Entities.RefreshToken", b =>

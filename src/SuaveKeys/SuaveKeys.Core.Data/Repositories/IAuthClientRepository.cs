@@ -9,5 +9,6 @@ namespace SuaveKeys.Core.Data.Repositories
     public interface IAuthClientRepository
     {
         Task<AuthClient> FindByIdAndSecret(string id, string secret);
+        Task<AuthClient> FindById(string id);
     }
 }
