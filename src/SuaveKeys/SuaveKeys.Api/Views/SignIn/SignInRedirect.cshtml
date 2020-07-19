@@ -1,0 +1,16 @@
+﻿@model (string Host, string State, string Code)
+@using System.Web
+@{
+    ViewData["Title"] = "Redirecting";
+}
+
+<h1>Redirecting</h1>
+
+<p>Redirecting to @Model</p>
+
+<script>
+    var host = '@Model.Host';
+    var state = '@Model.State';
+    var code = '@Model.Code';
+    window.location.replace(host + "?" + "code=" + code + "&state=" + state);
+</script>

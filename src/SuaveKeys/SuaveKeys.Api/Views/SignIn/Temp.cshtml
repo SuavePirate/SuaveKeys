@@ -1,0 +1,15 @@
+﻿@model string
+@{
+    ViewData["Title"] = "Temp";
+}
+
+
+<p>@Model</p>
+
+<script>
+    var code = '@Model';
+
+    
+    window.location.replace('/signin/code?code=' + code + "&code_verifier=abc123&grant_type=authorization_code&client_id=006ccf71-7624-47ab-94f9-52314435abe1&redirect_uri=https://localhost:44326");
+</script>
+

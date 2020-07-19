@@ -36,21 +36,27 @@ namespace SuaveKeys.Api.Controllers
             // TODO: actually check `isValid`
 
             // temp - this is just for manually testing the logic stuff using swagger
-            return Ok(isValid);
+            //return Ok(isValid);
 
-            // return View(model);
+            return View(model);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Index([FromForm]AuthCodeSignInRequest request)
+        public async Task<IActionResult> Index(AuthCodeSignInRequest request)
         {
             var response = await _authService.GrantAuthCode(request);
-
             // temp
-            return Ok($"{request.RedirectUri}?state={response.State}&code={response.Code}");
+            //return Ok($"{request.RedirectUri}?state={response.State}&code={response.Code}");
 
-            //return Redirect($"{request.RedirectUri}?state={response.State}&code={response.Code}");
+            return View("SignInRedirect", (request.RedirectUri, response.State, response.Code));
         }
+
+        [HttpGet("temp-redirect")]
+        public async Task<IActionResult> Temp(string state, string code)
+        {
+            return View("Temp", code);
+        }
+
 
         [HttpGet("code")]
         public async Task<IActionResult> GrantCode(string grant_type, string client_id, string redirect_uri, string code_verifier, string code)
@@ -65,9 +71,9 @@ namespace SuaveKeys.Api.Controllers
             });
 
             // temp
-            return Ok($"{redirect_uri}?access_token={response.AccessToken}&access_token_expiration={response.AccessTokenExpiration}&refresh_token={response.RefreshToken}&refresh_token_expiration={response.RefreshTokenExpiration}");
+            //return Ok($"{redirect_uri}?access_token={response.AccessToken}&access_token_expiration={response.AccessTokenExpiration}&refresh_token={response.RefreshToken}&refresh_token_expiration={response.RefreshTokenExpiration}");
 
-            //return Redirect($"{redirect_uri}?access_token={response.AccessToken}&access_token_expiration={response.AccessTokenExpiration}&refresh_token={response.RefreshToken}&refresh_token_expiration={response.RefreshTokenExpiration}");
+            return Redirect($"{redirect_uri}?access_token={response.AccessToken}&access_token_expiration={response.AccessTokenExpiration}&refresh_token={response.RefreshToken}&refresh_token_expiration={response.RefreshTokenExpiration}");
         }
     }
 }
