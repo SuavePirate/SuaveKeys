@@ -75,5 +75,28 @@ namespace SuaveKeys.Api.Controllers
 
             return Redirect($"{redirect_uri}?access_token={response.AccessToken}&access_token_expiration={response.AccessTokenExpiration}&refresh_token={response.RefreshToken}&refresh_token_expiration={response.RefreshTokenExpiration}");
         }
+
+        [HttpPost("token")]
+        public async Task<IActionResult> GetToken(string grant_type, string client_id, string client_secret, string redirect_uri, string code_verifier, string code, string refresh_token)
+        {
+            var response = await _authService.AuthenticateAuthorizationCode(new AuthCodeTokenRequest
+            {
+                Challenge = code_verifier,
+                ClientId = client_id,
+                Code = code,
+                GrantType = grant_type,
+                RedirectUri = redirect_uri
+            });
+
+            // temp
+            //return Ok($"{redirect_uri}?access_token={response.AccessToken}&access_token_expiration={response.AccessTokenExpiration}&refresh_token={response.RefreshToken}&refresh_token_expiration={response.RefreshTokenExpiration}");
+            return Ok(new
+            {
+                access_token = response.AccessToken,
+                access_token_expiration = response.AccessTokenExpiration,
+                refresh_token = response.RefreshToken
+            });
+            //return Redirect($"{redirect_uri}?access_token={response.AccessToken}&access_token_expiration={response.AccessTokenExpiration}&refresh_token={response.RefreshToken}&refresh_token_expiration={response.RefreshTokenExpiration}");
+        }
     }
 }

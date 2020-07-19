@@ -105,13 +105,8 @@ namespace SuaveKeys.Infrastructure.Business.Services
             if (authClient is null)
                 throw new Exception("Invalid client.");
 
-            // validate client origin
-            if (!request.Origin.ToLower().StartsWith(authClient.OriginHost))
-                throw new Exception("Invalid origin.");
-
-
             // validate redirect origin
-            if (!request.RedirectUri.ToLower().StartsWith(authClient.AuthCodeRedirectUrlHost))
+            if (!request.RedirectUri.ToLower().StartsWith(authClient.AuthCodeRedirectUrlHost.ToLower()))
                 throw new Exception("Invalid redirect uri.");
 
 
@@ -188,7 +183,7 @@ namespace SuaveKeys.Infrastructure.Business.Services
             }
 
             // validate the redirect url
-            if (!request.RedirectUri.ToLower().StartsWith(authCode.AuthClient.TokenRedirectUrlHost))
+            if (!request.RedirectUri.ToLower().StartsWith(authCode.AuthClient.TokenRedirectUrlHost.ToLower()))
                 throw new Exception("Invalid redirect uri.");
 
             // validate grant type
@@ -246,6 +241,8 @@ namespace SuaveKeys.Infrastructure.Business.Services
 
 
             var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
+
+
             return encodedJwt;
         }
 
