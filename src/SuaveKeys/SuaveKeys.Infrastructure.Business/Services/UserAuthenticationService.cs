@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using ServiceResult;
 using SuaveKeys.Core.Business.Services;
 using SuaveKeys.Core.Data.Providers;
 using SuaveKeys.Core.Data.Repositories;
@@ -41,180 +42,212 @@ namespace SuaveKeys.Infrastructure.Business.Services
             _authSettings = authSettings;
         }
 
-        public async Task<TokenResponse> AuthenticateUser(AuthenticationRequest request)
+        public async Task<Result<TokenResponse>> AuthenticateUser(AuthenticationRequest request)
         {
-            var authClient = await _authClientRepository.FindByIdAndSecret(request.ClientId, request.ClientSecret);
-            if (authClient == null)
-                throw new Exception("Invalid client");
-
-            var user = await _userRepository.FindByEmail(request.Username);
-            if (user is null)
-                throw new Exception("Invalid username or password.");
-
-            if(request.GrantType == "password")
+            try
             {
-                var isPasswordMatch = _hashProvider.GetPasswordMatch(user.PasswordHash, request.Password);
-                if (!isPasswordMatch)
-                    throw new Exception("Invalid username or password.");
+                var authClient = await _authClientRepository.FindByIdAndSecret(request.ClientId, request.ClientSecret);
+                if (authClient == null)
+                    return new InvalidResult<TokenResponse>("Invalid client");
+
+                var user = await _userRepository.FindByEmail(request.Username);
+                if (user is null)
+                    return new InvalidResult<TokenResponse>("Invalid username or password.");
+
+                if (request.GrantType == "password")
+                {
+                    var isPasswordMatch = _hashProvider.GetPasswordMatch(user.PasswordHash, request.Password);
+                    if (!isPasswordMatch)
+                        return new InvalidResult<TokenResponse>("Invalid username or password.");
+                }
+                else if (request.GrantType == "refresh_token")
+                {
+                    var existingToken = await _refreshTokenRepository.FindByToken(request.RefreshToken);
+                    if (existingToken is null || existingToken.AuthClient.Id != request.ClientId || existingToken.AuthClient.Secret != request.ClientSecret)
+                        return new InvalidResult<TokenResponse>("Invalid token or client");
+
+                    await _refreshTokenRepository.DeleteById(existingToken.Id);
+                }
+                else
+                {
+                    return new InvalidResult<TokenResponse>("Invalid grant type");
+                }
+
+                // hey you're authenticated! Here are your tokens!
+                var accessToken = GenerateToken(user);
+                var refreshToken = new RefreshToken
+                {
+                    UserId = user?.Id,
+                    AuthClientId = authClient.Id,
+                    CreatedDate = DateTime.UtcNow,
+                    ModifiedDate = DateTime.UtcNow,
+                    ExpirationDate = DateTime.UtcNow.AddDays(_authSettings.Value.RefreshTokenExpirationDays),
+                    Token = Guid.NewGuid().ToString()
+                };
+                await _refreshTokenRepository.AddAsync(refreshToken);
+                await _refreshTokenRepository.SaveChangesAsync();
+
+                return new SuccessResult<TokenResponse>(new TokenResponse
+                {
+                    AccessToken = accessToken,
+                    RefreshToken = refreshToken.Token,
+                    AccessTokenExpiration = DateTime.UtcNow.AddHours(_authSettings.Value.AccessTokenExpirationHours),
+                    RefreshTokenExpiration = refreshToken.ExpirationDate,
+                    UserId = user.Id
+                });
             }
-            else if (request.GrantType == "refresh_token")
+            catch (Exception ex)
             {
-                var existingToken = await _refreshTokenRepository.FindByToken(request.RefreshToken);
-                if (existingToken is null || existingToken.AuthClient.Id != request.ClientId || existingToken.AuthClient.Secret != request.ClientSecret)
-                    throw new Exception("Invalid token or client");
-
-                await _refreshTokenRepository.DeleteById(existingToken.Id);
+                Console.WriteLine(ex);
+                return new UnexpectedResult<TokenResponse>();
             }
-            else
-            {
-                throw new Exception("Invalid grant type");
-            }
-
-            // hey you're authenticated! Here are your tokens!
-            var accessToken = GenerateToken(user);
-            var refreshToken = new RefreshToken
-            {
-                UserId = user?.Id,
-                AuthClientId = authClient.Id,
-                CreatedDate = DateTime.UtcNow,
-                ModifiedDate = DateTime.UtcNow,
-                ExpirationDate = DateTime.UtcNow.AddDays(_authSettings.Value.RefreshTokenExpirationDays),
-                Token = Guid.NewGuid().ToString()
-            };
-            await _refreshTokenRepository.AddAsync(refreshToken);
-            await _refreshTokenRepository.SaveChangesAsync();
-
-            return new TokenResponse
-            {
-                AccessToken = accessToken,
-                RefreshToken = refreshToken.Token,
-                AccessTokenExpiration = DateTime.UtcNow.AddHours(_authSettings.Value.AccessTokenExpirationHours),
-                RefreshTokenExpiration = refreshToken.ExpirationDate,
-                UserId = user.Id
-            };
-
         }
 
 
-        public async Task<bool> RequestAuthentication(AuthCodeRequest request)
+        public async Task<Result<bool>> RequestAuthentication(AuthCodeRequest request)
         {
-            // can we show UI?
+            try
+            {
+                // can we show UI?
 
-            // validate client id
-            var authClient = await _authClientRepository.FindById(request.ClientId);
-            if (authClient is null)
-                throw new Exception("Invalid client.");
+                // validate client id
+                var authClient = await _authClientRepository.FindById(request.ClientId);
+                if (authClient is null)
+                    return new InvalidResult<bool>("Invalid client.");
 
-            // validate redirect origin
-            if (!request.RedirectUri.ToLower().StartsWith(authClient.AuthCodeRedirectUrlHost.ToLower()))
-                throw new Exception("Invalid redirect uri.");
+                // validate redirect origin
+                if (!request.RedirectUri.ToLower().StartsWith(authClient.AuthCodeRedirectUrlHost.ToLower()))
+                    return new InvalidResult<bool>("Invalid redirect uri.");
 
 
-            return true;
+                return new SuccessResult<bool>(true);
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return new UnexpectedResult<bool>();
+            }
             
         }
 
-        public async Task<AuthCodeResponse> GrantAuthCode(AuthCodeSignInRequest request)
+        public async Task<Result<AuthCodeResponse>> GrantAuthCode(AuthCodeSignInRequest request)
         {
-            // give auth code
-
-            // validate username/password
-            var user = await _userRepository.FindByEmail(request.Username);
-            if (user is null)
-                throw new Exception("Invalid username or password.");
-
-            var isPasswordMatch = _hashProvider.GetPasswordMatch(user.PasswordHash, request.Password);
-            if (!isPasswordMatch)
-                throw new Exception("Invalid username or password.");
-
-            // re-run request validation
-            var isValid = await RequestAuthentication(request);
-            if (!isValid)
-                throw new Exception("Invalid client.");
-
-            // create auth code and store it
-            var authCode = new AuthorizationCode
+            try
             {
-                AuthClientId = request.ClientId,
-                ChallengeCode = request.Challenge,
-                ChallengeMethod = request.ChallengeMethod,
-                CreatedDate = DateTime.UtcNow,
-                ExpirationDate = DateTime.UtcNow.AddMinutes(5),
-                State = request.State,
-                Code = GenerateAuthCode(),
-                UserId = user.Id
-            };
+                // give auth code
 
-            await _authorizationCodeRepository.Add(authCode);
-            await _authorizationCodeRepository.SaveChangesAsync();
+                // validate username/password
+                var user = await _userRepository.FindByEmail(request.Username);
+                if (user is null)
+                    return new InvalidResult<AuthCodeResponse>("Invalid username or password.");
 
-            // return response
-            return new AuthCodeResponse
+                var isPasswordMatch = _hashProvider.GetPasswordMatch(user.PasswordHash, request.Password);
+                if (!isPasswordMatch)
+                    return new InvalidResult<AuthCodeResponse>("Invalid username or password.");
+
+                // re-run request validation
+                var isValidResult = await RequestAuthentication(request);
+                if (isValidResult?.ResultType != ResultType.Ok)
+                    return new InvalidResult<AuthCodeResponse>("Invalid client.");
+
+                // create auth code and store it
+                var authCode = new AuthorizationCode
+                {
+                    AuthClientId = request.ClientId,
+                    ChallengeCode = request.Challenge,
+                    ChallengeMethod = request.ChallengeMethod,
+                    CreatedDate = DateTime.UtcNow,
+                    ExpirationDate = DateTime.UtcNow.AddMinutes(5),
+                    State = request.State,
+                    Code = GenerateAuthCode(),
+                    UserId = user.Id
+                };
+
+                await _authorizationCodeRepository.Add(authCode);
+                await _authorizationCodeRepository.SaveChangesAsync();
+
+                // return response
+                return new SuccessResult<AuthCodeResponse>(new AuthCodeResponse
+                {
+                    Code = authCode.Code,
+                    State = authCode.State
+                });
+            }
+            catch (Exception ex)
             {
-                Code = authCode.Code,
-                State = authCode.State
-            };
+                Console.WriteLine(ex);
+                return new UnexpectedResult<AuthCodeResponse>();
+            }
         }
 
-        public async Task<TokenResponse> AuthenticateAuthorizationCode(AuthCodeTokenRequest request)
+        public async Task<Result<TokenResponse>> AuthenticateAuthorizationCode(AuthCodeTokenRequest request)
         {
-            // give tokens!
-
-            // find the auth code by code and challenge
-            var authCode = await _authorizationCodeRepository.FindByCodeAndClientId(request.Code, request.ClientId);
-            if (authCode is null)
-                throw new Exception("Invalid code or client");
-
-            if (authCode.ExpirationDate < DateTime.UtcNow)
-                throw new Exception("Expired code.");
-
-            // validate challenge code
-            if (authCode.ChallengeMethod == "plain" && authCode.ChallengeCode != request.Challenge)
-                throw new Exception("Invalid challenge.");
-            if(authCode.ChallengeMethod == "s256")
+            try
             {
-                // hash and base 64 url encode the request.Challenge
-                var hashedValue = ComputeSha256Hash(request.Challenge);
-                var encoded = Base64UrlEncoder.Encode(hashedValue);
+                // give tokens!
 
-                // compare new hash with stored challenge code and throw if not the same
-                if (encoded != authCode.ChallengeCode)
-                    throw new Exception("Invalid challenge.");
+                // find the auth code by code and challenge
+                var authCode = await _authorizationCodeRepository.FindByCodeAndClientId(request.Code, request.ClientId);
+                if (authCode is null)
+                    return new InvalidResult<TokenResponse>("Invalid code or client");
+
+                if (authCode.ExpirationDate < DateTime.UtcNow)
+                    return new InvalidResult<TokenResponse>("Expired code.");
+
+                // validate challenge code
+                if (authCode.ChallengeMethod == "plain" && authCode.ChallengeCode != request.Challenge)
+                    return new InvalidResult<TokenResponse>("Invalid challenge.");
+                if (authCode.ChallengeMethod == "s256")
+                {
+                    // hash and base 64 url encode the request.Challenge
+                    var hashedValue = ComputeSha256Hash(request.Challenge);
+                    var encoded = Base64UrlEncoder.Encode(hashedValue);
+
+                    // compare new hash with stored challenge code and throw if not the same
+                    if (encoded != authCode.ChallengeCode)
+                        return new InvalidResult<TokenResponse>("Invalid challenge.");
+                }
+
+                // validate the redirect url
+                if (!request.RedirectUri.ToLower().StartsWith(authCode.AuthClient.TokenRedirectUrlHost.ToLower()))
+                    return new InvalidResult<TokenResponse>("Invalid redirect uri.");
+
+                // validate grant type
+                if (request.GrantType != "authorization_code")
+                    return new InvalidResult<TokenResponse>("Invalid grant type");
+
+
+                // generate tokens
+                // hey you're authenticated! Here are your tokens!
+                var accessToken = GenerateToken(authCode.User);
+                var refreshToken = new RefreshToken
+                {
+                    UserId = authCode.User?.Id,
+                    AuthClientId = authCode.AuthClientId,
+                    CreatedDate = DateTime.UtcNow,
+                    ModifiedDate = DateTime.UtcNow,
+                    ExpirationDate = DateTime.UtcNow.AddDays(_authSettings.Value.RefreshTokenExpirationDays),
+                    Token = Guid.NewGuid().ToString()
+                };
+                await _refreshTokenRepository.AddAsync(refreshToken);
+                await _authorizationCodeRepository.Remove(authCode);
+
+                await _refreshTokenRepository.SaveChangesAsync();
+
+                return new SuccessResult<TokenResponse>(new TokenResponse
+                {
+                    AccessToken = accessToken,
+                    RefreshToken = refreshToken.Token,
+                    AccessTokenExpiration = DateTime.UtcNow.AddHours(_authSettings.Value.AccessTokenExpirationHours),
+                    RefreshTokenExpiration = refreshToken.ExpirationDate
+                });
             }
-
-            // validate the redirect url
-            if (!request.RedirectUri.ToLower().StartsWith(authCode.AuthClient.TokenRedirectUrlHost.ToLower()))
-                throw new Exception("Invalid redirect uri.");
-
-            // validate grant type
-            if (request.GrantType != "authorization_code")
-                throw new Exception("Invalid grant type");
-
-
-            // generate tokens
-            // hey you're authenticated! Here are your tokens!
-            var accessToken = GenerateToken(authCode.User);
-            var refreshToken = new RefreshToken
+            catch (Exception ex)
             {
-                UserId = authCode.User?.Id,
-                AuthClientId = authCode.AuthClientId,
-                CreatedDate = DateTime.UtcNow,
-                ModifiedDate = DateTime.UtcNow,
-                ExpirationDate = DateTime.UtcNow.AddDays(_authSettings.Value.RefreshTokenExpirationDays),
-                Token = Guid.NewGuid().ToString()
-            };
-            await _refreshTokenRepository.AddAsync(refreshToken);
-            await _authorizationCodeRepository.Remove(authCode);
-
-            await _refreshTokenRepository.SaveChangesAsync();
-
-            return new TokenResponse
-            {
-                AccessToken = accessToken,
-                RefreshToken = refreshToken.Token,
-                AccessTokenExpiration = DateTime.UtcNow.AddHours(_authSettings.Value.AccessTokenExpirationHours),
-                RefreshTokenExpiration = refreshToken.ExpirationDate
-            };
+                Console.WriteLine(ex);
+                return new UnexpectedResult<TokenResponse>();
+            }
         }
 
 
@@ -263,7 +296,7 @@ namespace SuaveKeys.Infrastructure.Business.Services
         }
 
 
-        string ComputeSha256Hash(string originalString)
+        private string ComputeSha256Hash(string originalString)
         {
             // Create a SHA256   
             using (var sha256Hash = SHA256.Create())
