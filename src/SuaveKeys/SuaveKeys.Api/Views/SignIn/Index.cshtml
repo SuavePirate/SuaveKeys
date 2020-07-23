@@ -1,4 +1,4 @@
-﻿@model SuaveKeys.Core.Models.Transfer.Authentication.AuthCodeRequest
+﻿@model (SuaveKeys.Core.Models.Transfer.Authentication.AuthCodeRequest Request, string AuthClientName)
 
 @{
     ViewData["Title"] = "Sign In";
@@ -6,14 +6,15 @@
 
 <div class="text-center">
     <h1 class="display-4">Sign In to Suave Keys</h1>
+    <h2>Authorize @Model.AuthClientName</h2>
     <form method="post">
-        <input name="Challenge" value="@Model.Challenge" type="hidden" />
-        <input name="State" value="@Model.State" type="hidden" />
-        <input name="ClientId" value="@Model.ClientId" type="hidden" />
-        <input name="GrantType" value="@Model.GrantType" type="hidden" />
-        <input name="RedirectUri" value="@Model.RedirectUri" type="hidden" />
-        <input name="ChallengeMethod" value="@Model.ChallengeMethod" type="hidden" />
-        <input name="Origin" value="@Model.Origin" type="hidden"/>
+        <input name="Challenge" value="@Model.Request.Challenge" type="hidden" />
+        <input name="State" value="@Model.Request.State" type="hidden" />
+        <input name="ClientId" value="@Model.Request.ClientId" type="hidden" />
+        <input name="GrantType" value="@Model.Request.GrantType" type="hidden" />
+        <input name="RedirectUri" value="@Model.Request.RedirectUri" type="hidden" />
+        <input name="ChallengeMethod" value="@Model.Request.ChallengeMethod" type="hidden" />
+        <input name="Origin" value="@Model.Request.Origin" type="hidden"/>
         <input name="Username" class="form-control" type="text"/>
         <input name="Password" class="form-control" type="password"/>
         <button type="submit" class="btn btn-primary">Sign in</button>

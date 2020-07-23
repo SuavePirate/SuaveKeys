@@ -17,6 +17,14 @@ namespace SuaveKeys.Api.Controllers
         public VoicifyResponse PressKey([FromBody]VoicifyRequest request)
         {
             var token = new JwtSecurityTokenHandler().ReadJwtToken(request.OriginalRequest.AccessToken);
+            if (!IsTokenValid(token))
+                return new VoicifyResponse
+                {
+                    Data = new VoicifyResponseData
+                    {
+                        Content = "You are not signed in. Please authenticate to press a key"
+                    }
+                };
             var email = token?.Claims?.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
             return new VoicifyResponse
             {
@@ -30,6 +38,16 @@ namespace SuaveKeys.Api.Controllers
         [HttpPost("TypeIntent")]
         public VoicifyResponse Type([FromBody]VoicifyRequest request)
         {
+            var token = new JwtSecurityTokenHandler().ReadJwtToken(request.OriginalRequest.AccessToken);
+            if (!IsTokenValid(token))
+                return new VoicifyResponse
+                {
+                    Data = new VoicifyResponseData
+                    {
+                        Content = "You are not signed in. Please authenticate to type"
+                    }
+                };
+
             return new VoicifyResponse
             {
                 Data = new VoicifyResponseData
@@ -37,6 +55,19 @@ namespace SuaveKeys.Api.Controllers
                     Content = $"Typing {request.OriginalRequest.Slots["phrase"]}"
                 }
             };
+        }
+
+        private bool IsTokenValid(JwtSecurityToken token)
+        {
+            var expiration = token?.Claims?.FirstOrDefault(c => c.Type == "expiration_date")?.Value;
+            if (expiration == null)
+                return false;
+
+            var isValidDate = DateTime.TryParse(expiration, out var expirationDate);
+            if (!isValidDate)
+                return false;
+
+            return expirationDate < DateTime.UtcNow;
         }
     }
 }

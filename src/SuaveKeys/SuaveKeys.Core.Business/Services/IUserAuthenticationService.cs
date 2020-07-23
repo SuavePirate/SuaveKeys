@@ -1,4 +1,5 @@
 ﻿using ServiceResult;
+using SuaveKeys.Core.Models.Entities;
 using SuaveKeys.Core.Models.Transfer.Authentication;
 using System;
 using System.Collections.Generic;
@@ -21,7 +22,7 @@ namespace SuaveKeys.Core.Business.Services
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        Task<Result<bool>> RequestAuthentication(AuthCodeRequest request);
+        Task<Result<AuthClient>> RequestAuthentication(AuthCodeRequest request);
 
         /// <summary>
         /// Validates an auth code request and returns an auth code response

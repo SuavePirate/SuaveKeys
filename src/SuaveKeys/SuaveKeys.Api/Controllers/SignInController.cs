@@ -12,7 +12,6 @@ namespace SuaveKeys.Api.Controllers
     public class SignInController : Controller
     {
         private readonly IUserAuthenticationService _authService;
-
         public SignInController(IUserAuthenticationService authService)
         {
             _authService = authService;
@@ -36,7 +35,7 @@ namespace SuaveKeys.Api.Controllers
             // temp - this is just for manually testing the logic stuff using swagger❤❤❤❤❤❤❤❤
             //return Ok(isValid);
             if (response.ResultType == ServiceResult.ResultType.Ok)
-                return View(model);
+                return View((model, response.Data.Name));
 
             return View("ValidationErrors", response.Errors);
         }
@@ -73,14 +72,22 @@ namespace SuaveKeys.Api.Controllers
         [HttpPost("token")]
         public async Task<IActionResult> GetToken(string grant_type, string client_id, string client_secret, string redirect_uri, string code_verifier, string code, string refresh_token)
         {
-            var response = await _authService.AuthenticateAuthorizationCode(new AuthCodeTokenRequest
-            {
-                Challenge = code_verifier,
-                ClientId = client_id,
-                Code = code,
-                GrantType = grant_type,
-                RedirectUri = redirect_uri
-            });
+            var response = grant_type == "refresh_token" 
+                ? await _authService.AuthenticateUser(new AuthenticationRequest
+                {
+                    ClientId = client_id,
+                    ClientSecret = client_secret,
+                    RefreshToken = refresh_token,
+                    GrantType = grant_type
+                })
+                : await _authService.AuthenticateAuthorizationCode(new AuthCodeTokenRequest
+                {
+                    Challenge = code_verifier,
+                    ClientId = client_id,
+                    Code = code,
+                    GrantType = grant_type,
+                    RedirectUri = redirect_uri
+                });
 
             if (response.ResultType == ServiceResult.ResultType.Ok)
                 return Ok(new

@@ -50,51 +50,43 @@ namespace SuaveKeys.Infrastructure.Business.Services
                 if (authClient == null)
                     return new InvalidResult<TokenResponse>("Invalid client");
 
-                var user = await _userRepository.FindByEmail(request.Username);
-                if (user is null)
-                    return new InvalidResult<TokenResponse>("Invalid username or password.");
-
-                if (request.GrantType == "password")
-                {
-                    var isPasswordMatch = _hashProvider.GetPasswordMatch(user.PasswordHash, request.Password);
-                    if (!isPasswordMatch)
-                        return new InvalidResult<TokenResponse>("Invalid username or password.");
-                }
-                else if (request.GrantType == "refresh_token")
+                if (request.GrantType == "refresh_token")
                 {
                     var existingToken = await _refreshTokenRepository.FindByToken(request.RefreshToken);
                     if (existingToken is null || existingToken.AuthClient.Id != request.ClientId || existingToken.AuthClient.Secret != request.ClientSecret)
                         return new InvalidResult<TokenResponse>("Invalid token or client");
 
                     await _refreshTokenRepository.DeleteById(existingToken.Id);
+
+                    // hey you're authenticated! Here are your tokens!
+                    var accessToken = GenerateToken(existingToken.User);
+                    var refreshToken = new RefreshToken
+                    {
+                        UserId = existingToken.User.Id,
+                        AuthClientId = authClient.Id,
+                        CreatedDate = DateTime.UtcNow,
+                        ModifiedDate = DateTime.UtcNow,
+                        ExpirationDate = DateTime.UtcNow.AddDays(_authSettings.Value.RefreshTokenExpirationDays),
+                        Token = Guid.NewGuid().ToString()
+                    };
+                    await _refreshTokenRepository.AddAsync(refreshToken);
+                    await _refreshTokenRepository.SaveChangesAsync();
+
+                    return new SuccessResult<TokenResponse>(new TokenResponse
+                    {
+                        AccessToken = accessToken,
+                        RefreshToken = refreshToken.Token,
+                        AccessTokenExpiration = DateTime.UtcNow.AddHours(_authSettings.Value.AccessTokenExpirationHours),
+                        RefreshTokenExpiration = refreshToken.ExpirationDate,
+                        UserId = existingToken.User.Id
+                    });
                 }
                 else
                 {
                     return new InvalidResult<TokenResponse>("Invalid grant type");
                 }
 
-                // hey you're authenticated! Here are your tokens!
-                var accessToken = GenerateToken(user);
-                var refreshToken = new RefreshToken
-                {
-                    UserId = user?.Id,
-                    AuthClientId = authClient.Id,
-                    CreatedDate = DateTime.UtcNow,
-                    ModifiedDate = DateTime.UtcNow,
-                    ExpirationDate = DateTime.UtcNow.AddDays(_authSettings.Value.RefreshTokenExpirationDays),
-                    Token = Guid.NewGuid().ToString()
-                };
-                await _refreshTokenRepository.AddAsync(refreshToken);
-                await _refreshTokenRepository.SaveChangesAsync();
-
-                return new SuccessResult<TokenResponse>(new TokenResponse
-                {
-                    AccessToken = accessToken,
-                    RefreshToken = refreshToken.Token,
-                    AccessTokenExpiration = DateTime.UtcNow.AddHours(_authSettings.Value.AccessTokenExpirationHours),
-                    RefreshTokenExpiration = refreshToken.ExpirationDate,
-                    UserId = user.Id
-                });
+               
             }
             catch (Exception ex)
             {
@@ -104,7 +96,7 @@ namespace SuaveKeys.Infrastructure.Business.Services
         }
 
 
-        public async Task<Result<bool>> RequestAuthentication(AuthCodeRequest request)
+        public async Task<Result<AuthClient>> RequestAuthentication(AuthCodeRequest request)
         {
             try
             {
@@ -113,20 +105,20 @@ namespace SuaveKeys.Infrastructure.Business.Services
                 // validate client id
                 var authClient = await _authClientRepository.FindById(request.ClientId);
                 if (authClient is null)
-                    return new InvalidResult<bool>("Invalid client.");
+                    return new InvalidResult<AuthClient>("Invalid client.");
 
                 // validate redirect origin
                 if (!request.RedirectUri.ToLower().StartsWith(authClient.AuthCodeRedirectUrlHost.ToLower()))
-                    return new InvalidResult<bool>("Invalid redirect uri.");
+                    return new InvalidResult<AuthClient>("Invalid redirect uri.");
 
 
-                return new SuccessResult<bool>(true);
+                return new SuccessResult<AuthClient>(authClient);
 
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
-                return new UnexpectedResult<bool>();
+                return new UnexpectedResult<AuthClient>();
             }
             
         }
@@ -258,6 +250,7 @@ namespace SuaveKeys.Infrastructure.Business.Services
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Expiration, _authSettings.Value.AccessTokenExpirationHours.ToString()),
+                new Claim("expiration_date", DateTime.UtcNow.AddHours(_authSettings.Value.AccessTokenExpirationHours).ToString())
             };
 
             var symmetricKeyAsBase64 = _authSettings.Value.EncodingSecret;
