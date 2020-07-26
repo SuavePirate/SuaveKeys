@@ -1,4 +1,6 @@
-﻿using System;
+﻿using SuaveKeys.Clients.Services;
+using SuaveKeys.Clients.UWP.Services;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -12,6 +14,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Xamarin.Forms;
 
 namespace SuaveKeys.Clients.UWP
 {
@@ -20,7 +23,7 @@ namespace SuaveKeys.Clients.UWP
         public MainPage()
         {
             this.InitializeComponent();
-
+            DependencyService.Register<IAuthClientSettings, UwpAuthClientSettings>();
             LoadApplication(new SuaveKeys.Clients.App());
         }
     }

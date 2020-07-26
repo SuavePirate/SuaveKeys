@@ -7,6 +7,9 @@ using Android.Views;
 using Android.Widget;
 using Android.OS;
 using Acr.UserDialogs;
+using SuaveKeys.Clients.Droid.Services;
+using SuaveKeys.Clients.Services;
+using Xamarin.Forms;
 
 namespace SuaveKeys.Clients.Droid
 {
@@ -21,6 +24,7 @@ namespace SuaveKeys.Clients.Droid
             base.OnCreate(savedInstanceState);
 
             UserDialogs.Init(this);
+            DependencyService.Register<IAuthClientSettings, AndroidAuthClientSettings>();
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
             LoadApplication(new App());
