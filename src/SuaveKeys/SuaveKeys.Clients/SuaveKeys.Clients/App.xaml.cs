@@ -16,7 +16,6 @@ namespace SuaveKeys.Clients
             Current = this;
             RegisterDependencies();
 
-            // TODO: check if we have auth tokens, then set the main page
             MainPage = new LandingPage();
         }
 
@@ -35,9 +34,14 @@ namespace SuaveKeys.Clients
             MainPage = new LandingPage();
         }
 
-        protected override void OnStart()
+
+        protected override async void OnStart()
         {
-            // Handle when your app starts
+            var authService = DependencyService.Get<IAuthService>();
+            var tokenResult = await authService.GetCurrentAccessToken();
+            if (tokenResult?.ResultType == ServiceResult.ResultType.Ok && !string.IsNullOrEmpty(tokenResult?.Data))
+                SetMainPage();
+
         }
 
         protected override void OnSleep()

@@ -45,9 +45,40 @@ namespace SuaveKeys.Clients.Services
             }
         }
 
-        public Task<Result<bool>> RefreshToken()
+        public async Task<Result<bool>> RefreshToken()
         {
-            throw new NotImplementedException();
+            try
+            {
+                var tokenJson = await SecureStorage.GetAsync(TokenInfoKey);
+                if (string.IsNullOrEmpty(tokenJson))
+                    return new InvalidResult<bool>("No token info. You are not signed in.");
+
+                var tokenInfo = JsonConvert.DeserializeObject<TokenResponse>(tokenJson);
+
+
+                using (var client = new HttpClient())
+                {
+                    var response = await client.PostAsync($"{_baseUrl}/signin/token?client_id={_clientSettings.ClientId}&client_secret={_clientSettings.ClientSecret}&refresh_token={tokenInfo.RefreshToken}&grant_type=refresh_token&redirect_uri=suavekeys://", null);
+                    if (response?.IsSuccessStatusCode == true)
+                    {
+                        var json = await response.Content.ReadAsStringAsync();
+                        tokenInfo = JsonConvert.DeserializeObject<TokenResponse>(json);
+
+                        // we have our tokens. Gotta do something with it
+                        _currentToken = tokenInfo?.AccessToken;
+                        await StoreTokenInfo(tokenInfo);
+
+                        return new SuccessResult<bool>(true);
+                    }
+                }
+                return new InvalidResult<bool>("Unable to authenticate.");
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return new UnexpectedResult<bool>();
+            }
         }
 
         public async Task<Result<bool>> StartAuthentication()
@@ -66,19 +97,22 @@ namespace SuaveKeys.Clients.Services
                 if (state != confirmState)
                     await UserDialogs.Instance.AlertAsync("Invalid state. This might be a sign of an interception attack.");
 
-                var client = new HttpClient();
-                var response = await client.PostAsync($"{_baseUrl}/signin/token?client_id={clientId}&code={code}&grant_type=authorization_code&redirect_uri=suavekeys://", null);
-                if (response?.IsSuccessStatusCode == true)
+                using (var client = new HttpClient())
                 {
-                    var json = await response.Content.ReadAsStringAsync();
-                    var tokenInfo = JsonConvert.DeserializeObject<TokenResponse>(json);
+                    var response = await client.PostAsync($"{_baseUrl}/signin/token?client_id={clientId}&code={code}&grant_type=authorization_code&redirect_uri=suavekeys://", null);
+                    if (response?.IsSuccessStatusCode == true)
+                    {
+                        var json = await response.Content.ReadAsStringAsync();
+                        var tokenInfo = JsonConvert.DeserializeObject<TokenResponse>(json);
 
-                    // we have our tokens. Gotta do something with it
-                    _currentToken = tokenInfo?.AccessToken;
-                    await StoreTokenInfo(tokenInfo);
+                        // we have our tokens. Gotta do something with it
+                        _currentToken = tokenInfo?.AccessToken;
+                        await StoreTokenInfo(tokenInfo);
 
-                    return new SuccessResult<bool>(true);
+                        return new SuccessResult<bool>(true);
+                    }
                 }
+                
 
                 return new InvalidResult<bool>("Unable to authenticate.");
             }
