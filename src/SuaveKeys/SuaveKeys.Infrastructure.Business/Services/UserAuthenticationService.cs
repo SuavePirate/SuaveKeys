@@ -248,6 +248,7 @@ namespace SuaveKeys.Infrastructure.Business.Services
             var claims = new Claim[]
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(ClaimTypes.Name, user.Id),
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Expiration, _authSettings.Value.AccessTokenExpirationHours.ToString()),
                 new Claim("expiration_date", DateTime.UtcNow.AddHours(_authSettings.Value.AccessTokenExpirationHours).ToString())
