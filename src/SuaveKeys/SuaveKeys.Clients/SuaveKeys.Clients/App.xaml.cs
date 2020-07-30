@@ -9,6 +9,7 @@ namespace SuaveKeys.Clients
     {
         public new static App Current;
         //private readonly TinyIoCContainer _container;
+        public IKeyboardService KeyboardService;
         public App()
         {
             //_container = container;

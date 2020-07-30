@@ -24,7 +24,9 @@ namespace SuaveKeys.Clients.UWP
         {
             this.InitializeComponent();
             DependencyService.Register<IAuthClientSettings, UwpAuthClientSettings>();
-            LoadApplication(new SuaveKeys.Clients.App());
+            var app = new SuaveKeys.Clients.App();
+            app.KeyboardService = new ArduinoSerialKeyboardService();
+            LoadApplication(app);
         }
     }
 }
