@@ -40,11 +40,15 @@ void PressKeyCommand() {
   Keyboard.end();
 }
 void TypeCommand() {
-  char *arg = serialCommand.next();
   Keyboard.begin();
   Keyboard.releaseAll();
-  Keyboard.print(arg);
-  delay(10);   
+  char *arg = serialCommand.next();
+  while(arg != NULL) {
+    Keyboard.print(" ");
+    Keyboard.print(arg);
+    delay(10);   
+    arg = serialCommand.next();
+  }
   Keyboard.releaseAll();
   Keyboard.end();
 }
