@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using TinyIoC;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -24,7 +25,8 @@ namespace SuaveKeys.Clients.UWP
         {
             this.InitializeComponent();
             DependencyService.Register<IAuthClientSettings, UwpAuthClientSettings>();
-            var app = new SuaveKeys.Clients.App();
+            var container = TinyIoCContainer.Current;
+            var app = new SuaveKeys.Clients.App(container);
             app.KeyboardService = new ArduinoSerialKeyboardService();
             LoadApplication(app);
         }

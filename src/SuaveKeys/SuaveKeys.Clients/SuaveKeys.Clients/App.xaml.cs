@@ -3,16 +3,18 @@ using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using SuaveKeys.Clients.Views;
 using SuaveKeys.Clients.Services;
+using TinyIoC;
+
 namespace SuaveKeys.Clients
 {
     public partial class App : Application
     {
         public new static App Current;
-        //private readonly TinyIoCContainer _container;
+        private readonly TinyIoCContainer _container;
         public IKeyboardService KeyboardService;
-        public App()
+        public App(TinyIoCContainer container)
         {
-            //_container = container;
+            _container = container;
             InitializeComponent();
             Current = this;
             RegisterDependencies();

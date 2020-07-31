@@ -10,6 +10,7 @@ using Acr.UserDialogs;
 using SuaveKeys.Clients.Droid.Services;
 using SuaveKeys.Clients.Services;
 using Xamarin.Forms;
+using TinyIoC;
 
 namespace SuaveKeys.Clients.Droid
 {
@@ -27,7 +28,11 @@ namespace SuaveKeys.Clients.Droid
             DependencyService.Register<IAuthClientSettings, AndroidAuthClientSettings>();
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
-            LoadApplication(new App());
+
+            var container = TinyIoCContainer.Current;
+
+
+            LoadApplication(new App(container));
         }
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults)
         {

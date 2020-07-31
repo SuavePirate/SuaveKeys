@@ -5,6 +5,7 @@ using System.Linq;
 using Foundation;
 using SuaveKeys.Clients.iOS.Services;
 using SuaveKeys.Clients.Services;
+using TinyIoC;
 using UIKit;
 using Xamarin.Forms;
 
@@ -27,7 +28,8 @@ namespace SuaveKeys.Clients.iOS
         {
             global::Xamarin.Forms.Forms.Init();
             DependencyService.Register<IAuthClientSettings, iOSAuthClientSettings>();
-            LoadApplication(new App());
+            var container = TinyIoCContainer.Current;
+            LoadApplication(new App(container));
 
             return base.FinishedLaunching(app, options);
         }
