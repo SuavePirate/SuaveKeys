@@ -13,5 +13,7 @@ namespace SuaveKeys.Core.Models.Transfer.Voicify.Input
         public string ApplicationId { get; set; }
         public Dictionary<string,string> Slots { get; set; }
         public Dictionary<string, object> SessionAttributes { get; set; }
+        public object NativeRequest { get; set; }
+        public string AccessToken { get; set; }
     }
 }

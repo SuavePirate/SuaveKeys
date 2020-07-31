@@ -12,7 +12,6 @@ namespace SuaveKeys.Api.Controllers
     public class SignInController : Controller
     {
         private readonly IUserAuthenticationService _authService;
-
         public SignInController(IUserAuthenticationService authService)
         {
             _authService = authService;
@@ -31,25 +30,25 @@ namespace SuaveKeys.Api.Controllers
                 ChallengeMethod = code_challenge_method,
                 Origin = Request.Headers["Host"]
             };
-            var isValid = await _authService.RequestAuthentication(model);
+            var response = await _authService.RequestAuthentication(model);
 
-            // TODO: actually check `isValid`
+            // temp - this is just for manually testing the logic stuff using swagger❤❤❤❤❤❤❤❤
+            //return Ok(isValid);
+            if (response.ResultType == ServiceResult.ResultType.Ok)
+                return View((model, response.Data.Name));
 
-            // temp - this is just for manually testing the logic stuff using swagger
-            return Ok(isValid);
-
-            // return View(model);
+            return View("ValidationErrors", response.Errors);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Index([FromForm]AuthCodeSignInRequest request)
+        public async Task<IActionResult> Index(AuthCodeSignInRequest request)
         {
             var response = await _authService.GrantAuthCode(request);
 
-            // temp
-            return Ok($"{request.RedirectUri}?state={response.State}&code={response.Code}");
+            if (response?.ResultType == ServiceResult.ResultType.Ok)
+                return View("SignInRedirect", (request.RedirectUri, response.Data.State, response.Data.Code));
 
-            //return Redirect($"{request.RedirectUri}?state={response.State}&code={response.Code}");
+            return BadRequest(response.Errors);
         }
 
         [HttpGet("code")]
@@ -57,17 +56,48 @@ namespace SuaveKeys.Api.Controllers
         {
             var response = await _authService.AuthenticateAuthorizationCode(new AuthCodeTokenRequest
             {
-               Challenge = code_verifier,
-               ClientId = client_id,
-               Code = code,
-               GrantType = grant_type,
-               RedirectUri = redirect_uri
+                Challenge = code_verifier,
+                ClientId = client_id,
+                Code = code,
+                GrantType = grant_type,
+                RedirectUri = redirect_uri
             });
 
-            // temp
-            return Ok($"{redirect_uri}?access_token={response.AccessToken}&access_token_expiration={response.AccessTokenExpiration}&refresh_token={response.RefreshToken}&refresh_token_expiration={response.RefreshTokenExpiration}");
+            if (response?.ResultType == ServiceResult.ResultType.Ok)
+                return Redirect($"{redirect_uri}?access_token={response.Data.AccessToken}&access_token_expiration={response.Data.AccessTokenExpiration}&refresh_token={response.Data.RefreshToken}&refresh_token_expiration={response.Data.RefreshTokenExpiration}");
 
-            //return Redirect($"{redirect_uri}?access_token={response.AccessToken}&access_token_expiration={response.AccessTokenExpiration}&refresh_token={response.RefreshToken}&refresh_token_expiration={response.RefreshTokenExpiration}");
+            return View("ValidationErrors", response.Errors);
+        }
+
+        [HttpPost("token")]
+        public async Task<IActionResult> GetToken(string grant_type, string client_id, string client_secret, string redirect_uri, string code_verifier, string code, string refresh_token)
+        {
+            var response = grant_type == "refresh_token" 
+                ? await _authService.AuthenticateUser(new AuthenticationRequest
+                {
+                    ClientId = client_id,
+                    ClientSecret = client_secret,
+                    RefreshToken = refresh_token,
+                    GrantType = grant_type
+                })
+                : await _authService.AuthenticateAuthorizationCode(new AuthCodeTokenRequest
+                {
+                    Challenge = code_verifier,
+                    ClientId = client_id,
+                    Code = code,
+                    GrantType = grant_type,
+                    RedirectUri = redirect_uri
+                });
+
+            if (response.ResultType == ServiceResult.ResultType.Ok)
+                return Ok(new
+                {
+                    access_token = response.Data.AccessToken,
+                    access_token_expiration = response.Data.AccessTokenExpiration,
+                    refresh_token = response.Data.RefreshToken
+                });
+
+            return BadRequest(response.Errors);
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿using SuaveKeys.Core.Models.Transfer.Authentication;
+﻿using ServiceResult;
+using SuaveKeys.Core.Models.Entities;
+using SuaveKeys.Core.Models.Transfer.Authentication;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -13,27 +15,27 @@ namespace SuaveKeys.Core.Business.Services
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        Task<TokenResponse> AuthenticateUser(AuthenticationRequest request);
+        Task<Result<TokenResponse>> AuthenticateUser(AuthenticationRequest request);
 
         /// <summary>
         /// Request ability to authenticate user
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        Task<bool> RequestAuthentication(AuthCodeRequest request);
+        Task<Result<AuthClient>> RequestAuthentication(AuthCodeRequest request);
 
         /// <summary>
         /// Validates an auth code request and returns an auth code response
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        Task<AuthCodeResponse> GrantAuthCode(AuthCodeSignInRequest request);
+        Task<Result<AuthCodeResponse>> GrantAuthCode(AuthCodeSignInRequest request);
 
         /// <summary>
         /// Authenticates and authorization code request, validates the code challenge, and returns the tokens
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        Task<TokenResponse> AuthenticateAuthorizationCode(AuthCodeTokenRequest request);
+        Task<Result<TokenResponse>> AuthenticateAuthorizationCode(AuthCodeTokenRequest request);
     }
 }

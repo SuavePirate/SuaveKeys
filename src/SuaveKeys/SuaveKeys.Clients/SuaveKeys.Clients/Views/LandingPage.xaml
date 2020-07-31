@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             x:Class="SuaveKeys.Clients.Views.LandingPage">
+    <ContentPage.Content>
+        <StackLayout>
+            <Label Text="Welcome to Suave Keys!"
+                   Style="{DynamicResource TitleLabel}"
+                   AutomationProperties.HelpText="Welcome title"/>
+            <Label Text="Once you sign in, you can start to give commands to your keyboard, turn on the keyboard for this device, build keyboard profiles, and more!"
+                   Style="{DynamicResource DetailLabel}"/>
+            <Button Text="Sign-in / Sign-up"
+                    Style="{DynamicResource PrimaryButton}"
+                    Command="{Binding SignInCommand}"
+                    AutomationId="SignInButton"
+                    AutomationProperties.HelpText="Sign In to your Suave Keys Account"
+                    AutomationProperties.IsInAccessibleTree="True"/>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

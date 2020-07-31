@@ -1,0 +1,47 @@
+﻿<UserControl
+    x:Class="SuaveKeys.Clients.UWP.Views.DeviceSelectorView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:SuaveKeys.Clients.UWP.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="400">
+    <UserControl.Resources>
+        <CollectionViewSource x:Name="DeviceListSource"/>
+    </UserControl.Resources>
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid x:Name="RootGrid" Margin="12,20,12,12">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <StackPanel Margin="0,0,0,10">
+                <TextBlock Text="Device Selection"/>
+            </StackPanel>
+            <ScrollViewer Grid.Row="1" VerticalScrollMode="Auto" VerticalScrollBarVisibility="Auto">
+                <StackPanel Orientation="Vertical" Margin="0,10,0,0" Grid.Row="1">
+                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0" Grid.Row="1">
+                        <Button x:Name="ButtonConnectToDevice" Content="Connect to device" Margin="0,0,10,0" Click="ConnectToDevice_Click"/>
+                        <Button x:Name="ButtonDisconnectFromDevice" Content="Disconnect from device" Margin="0,0,10,0" Click="DisconnectFromDevice_Click"/>
+                    </StackPanel>
+                    <TextBlock Text="Select an Suave Keys Device:"/>
+                    <ListBox x:Name="ConnectDevices" ItemsSource="{Binding Source={StaticResource DeviceListSource}}"  Height="250" Background="Gray">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding InstanceId}"/>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- Status Block for providing messages to the user.  Use the
+             NotifyUser() method to populate the message -->
+            <Border x:Name="ErrorBorder" Background="Red" Grid.Row="2"/>
+            <TextBlock x:Name="StatusBlock" Grid.Row="2" Margin="12, 10, 12, 10" Visibility="Collapsed"/>
+        </Grid>
+    </Grid>
+</UserControl>
