@@ -16,7 +16,7 @@ namespace SuaveKeys.Clients.ViewModels
         public ICommand SignInCommand { get; set; }
         public LandingPageViewModel()
         {
-            _authService = DependencyService.Get<IAuthService>();
+            _authService = App.Current.Container.Resolve<IAuthService>();
 
             Title = "Welcome to Suave Keys";
             SignInCommand = new Command(async () =>

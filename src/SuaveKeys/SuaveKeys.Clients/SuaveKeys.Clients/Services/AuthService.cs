@@ -19,9 +19,9 @@ namespace SuaveKeys.Clients.Services
         private string _currentToken;
         private string _baseUrl = "https://suavekeys-dev.azurewebsites.net";
         private const string TokenInfoKey = "TOKEN_INFO";
-        public AuthService()
+        public AuthService(IAuthClientSettings clientSettings)
         {
-            _clientSettings = DependencyService.Get<IAuthClientSettings>();
+            _clientSettings = clientSettings;
         }
 
         public async Task<Result<string>> GetCurrentAccessToken()

@@ -20,7 +20,7 @@ namespace SuaveKeys.Clients.ViewModels
 
         public KeyboardPageViewModel()
         {
-            _authService = new AuthService();
+            _authService = App.Current.Container.Resolve<IAuthService>();
             ButtonText = "Connect";
             ToggleConnectCommand = new Command(async () =>
             {

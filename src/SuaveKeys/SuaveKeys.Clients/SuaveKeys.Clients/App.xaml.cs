@@ -10,11 +10,11 @@ namespace SuaveKeys.Clients
     public partial class App : Application
     {
         public new static App Current;
-        private readonly TinyIoCContainer _container;
+        public readonly TinyIoCContainer Container;
         public IKeyboardService KeyboardService;
         public App(TinyIoCContainer container)
         {
-            _container = container;
+            Container = container;
             InitializeComponent();
             Current = this;
             RegisterDependencies();
@@ -24,7 +24,7 @@ namespace SuaveKeys.Clients
 
         private void RegisterDependencies()
         {
-            DependencyService.Register<IAuthService, AuthService>();
+            Container.Register<IAuthService, AuthService>();
         }
 
         public void SetMainPage()
@@ -40,7 +40,7 @@ namespace SuaveKeys.Clients
 
         protected override async void OnStart()
         {
-            var authService = DependencyService.Get<IAuthService>();
+            var authService = App.Current.Container.Resolve<IAuthService>();
             var tokenResult = await authService.GetCurrentAccessToken();
             if (tokenResult?.ResultType == ServiceResult.ResultType.Ok && !string.IsNullOrEmpty(tokenResult?.Data))
                 SetMainPage();
