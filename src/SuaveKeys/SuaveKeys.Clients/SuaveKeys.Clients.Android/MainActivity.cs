@@ -25,11 +25,11 @@ namespace SuaveKeys.Clients.Droid
             base.OnCreate(savedInstanceState);
 
             UserDialogs.Init(this);
-            DependencyService.Register<IAuthClientSettings, AndroidAuthClientSettings>();
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
 
             var container = TinyIoCContainer.Current;
+            container.Register<IAuthClientSettings, AndroidAuthClientSettings>();
 
 
             LoadApplication(new App(container));

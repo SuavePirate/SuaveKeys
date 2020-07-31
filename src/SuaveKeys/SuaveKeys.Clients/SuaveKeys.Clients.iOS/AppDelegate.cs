@@ -27,8 +27,8 @@ namespace SuaveKeys.Clients.iOS
         public override bool FinishedLaunching(UIApplication app, NSDictionary options)
         {
             global::Xamarin.Forms.Forms.Init();
-            DependencyService.Register<IAuthClientSettings, iOSAuthClientSettings>();
             var container = TinyIoCContainer.Current;
+            container.Register<IAuthClientSettings, iOSAuthClientSettings>();
             LoadApplication(new App(container));
 
             return base.FinishedLaunching(app, options);
