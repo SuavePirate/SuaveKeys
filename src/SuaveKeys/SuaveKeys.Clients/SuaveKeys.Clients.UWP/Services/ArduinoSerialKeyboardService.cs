@@ -14,15 +14,25 @@ namespace SuaveKeys.Clients.UWP.Services
 {
     public class ArduinoSerialKeyboardService : IKeyboardService
     {
+        private readonly IKeyboardProfileService _keyboardProfileService;
+
+        public ArduinoSerialKeyboardService(IKeyboardProfileService keyboardProfileService)
+        {
+            _keyboardProfileService = keyboardProfileService;
+        }
+
         public async Task Press(string key)
         {
             if (EventHandlerForDevice.Current.IsDeviceConnected)
             {
-                var dataWriter = DeviceSelectorView.Current?.DataWriterObject;
                 try
                 {
-                    dataWriter = new DataWriter(EventHandlerForDevice.Current.Device.OutputStream);
-                    dataWriter.WriteString($"press {key}\n");
+                    if (_keyboardProfileService.CurrentRunningProfile?.Configuration?.CommandKeyMappings?.ContainsKey(key) == true)
+                    {
+                        key = _keyboardProfileService.CurrentRunningProfile?.Configuration?.CommandKeyMappings[key];
+                    }
+                    DeviceSelectorView.Current?.SetDataWriterObject(new DataWriter(EventHandlerForDevice.Current.Device.OutputStream));
+                    DeviceSelectorView.Current?.DataWriterObject.WriteString($"press {key}\n");
                     await DeviceSelectorView.Current?.WriteAsync(CancellationToken.None);
                 }
                 catch (OperationCanceledException /*exception*/)
@@ -37,7 +47,7 @@ namespace SuaveKeys.Clients.UWP.Services
                 finally
                 {
                     DeviceSelectorView.Current?.DataWriterObject.DetachStream();
-                    dataWriter = null;
+                    DeviceSelectorView.Current?.SetDataWriterObject(null);
                 }
             }
             else

@@ -93,6 +93,8 @@ namespace SuaveKeys.Clients.ViewModels
                 {
                     CurrentKeyCommands = string.Join(",", commandMappings);
                 }
+
+                _keyboardService.CurrentRunningProfile = CurrentProfile;
             }
         }
     }

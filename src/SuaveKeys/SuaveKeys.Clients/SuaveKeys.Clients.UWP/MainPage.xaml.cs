@@ -26,8 +26,8 @@ namespace SuaveKeys.Clients.UWP
             this.InitializeComponent();
             var container = TinyIoCContainer.Current;
             container.Register<IAuthClientSettings, UwpAuthClientSettings>();
+            container.Register<IKeyboardService, ArduinoSerialKeyboardService>();
             var app = new SuaveKeys.Clients.App(container);
-            app.KeyboardService = new ArduinoSerialKeyboardService();
             LoadApplication(app);
         }
     }

@@ -18,7 +18,7 @@ boolean           dbg = true;
 void setup() {
   Serial.begin(9600);
   serialCommand.addCommand("type", TypeCommand);
-  serialCommand.addCommand("pressKey", PressKeyCommand);
+  serialCommand.addCommand("press", PressKeyCommand);
   
   serialCommand.addCommand("debug", SetDebug );
 }
@@ -31,11 +31,27 @@ void loop() {
 }
 
 void PressKeyCommand() {
-  char *arg = serialCommand.next();
+  String arg = serialCommand.next();
+  
   Keyboard.begin();
   Keyboard.releaseAll();
-  Keyboard.print(arg);
-  delay(10);   
+  if(arg == "space") {
+    Keyboard.press(' ');
+  }
+  else if (arg == "shift") {
+    Keyboard.press(KEY_LEFT_SHIFT);
+  }
+  else if (arg == "ctrl") {
+    Keyboard.press(KEY_LEFT_CTRL);
+  }
+  else if (arg == "alt") {
+    Keyboard.press(KEY_LEFT_ALT);
+  }
+  else {
+    
+    Keyboard.press(arg[0]);
+  }
+  delay(50);   
   Keyboard.releaseAll();
   Keyboard.end();
 }

@@ -11,7 +11,6 @@ namespace SuaveKeys.Clients
     {
         public new static App Current;
         public readonly TinyIoCContainer Container;
-        public IKeyboardService KeyboardService;
         public App(TinyIoCContainer container)
         {
             Container = container;

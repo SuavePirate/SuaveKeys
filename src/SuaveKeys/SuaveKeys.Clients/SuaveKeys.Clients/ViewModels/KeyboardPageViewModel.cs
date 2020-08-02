@@ -14,6 +14,7 @@ namespace SuaveKeys.Clients.ViewModels
     public class KeyboardPageViewModel : BaseViewModel
     {
         private readonly IAuthService _authService;
+        private readonly IKeyboardService _keyboardService;
         private HubConnection _connection;
         public string ButtonText { get; set; }
         public ICommand ToggleConnectCommand { get; set; }
@@ -21,6 +22,7 @@ namespace SuaveKeys.Clients.ViewModels
         public KeyboardPageViewModel()
         {
             _authService = App.Current.Container.Resolve<IAuthService>();
+            _keyboardService = App.Current.Container.Resolve<IKeyboardService>();
             ButtonText = "Connect";
             ToggleConnectCommand = new Command(async () =>
             {
@@ -36,9 +38,9 @@ namespace SuaveKeys.Clients.ViewModels
                        };
                    })
                    .Build();
-
-                    _connection.On<string>(KeyboardEvents.PressKey, async (key) => await UserDialogs.Instance.AlertAsync(key));
-                    _connection.On<string>(KeyboardEvents.Type, async (keys) => await App.Current.KeyboardService?.Type(keys));
+                    
+                    _connection.On<string>(KeyboardEvents.PressKey, async (key) => await _keyboardService?.Press(key));
+                    _connection.On<string>(KeyboardEvents.Type, async (keys) => await _keyboardService?.Type(keys));
                     _connection.Reconnected += Connection_Reconnected;
                     _connection.Closed += Connection_Closed;
                     await _connection.StartAsync();
