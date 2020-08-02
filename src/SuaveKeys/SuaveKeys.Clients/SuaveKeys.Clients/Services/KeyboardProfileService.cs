@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -36,6 +37,25 @@ namespace SuaveKeys.Clients.Services
                 {
                     var responseJson = await response.Content.ReadAsStringAsync();
                     var config = JsonConvert.DeserializeObject<UserKeyboardProfileModel>(responseJson);
+                    Profiles.Add(config);
+                }
+            }
+        }
+        public async Task UpdateProfile(string profileId, string name, KeyboardProfileConfiguration model)
+        {
+            using (var client = new HttpClient())
+            {
+                var accessToken = await _authService.GetCurrentAccessToken();
+                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken.Data}");
+                var response = await client.PutAsync($"{BASE_PATH}/api/keyboardprofile/{profileId}?name={name}",
+                    new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json"));
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseJson = await response.Content.ReadAsStringAsync();
+                    var config = JsonConvert.DeserializeObject<UserKeyboardProfileModel>(responseJson);
+                    var existingProfile = Profiles.FirstOrDefault(p => p.Id == profileId);
+                    Profiles.Remove(existingProfile);
                     Profiles.Add(config);
                 }
             }

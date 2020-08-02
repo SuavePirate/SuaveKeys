@@ -13,5 +13,6 @@ namespace SuaveKeys.Clients.Services
         UserKeyboardProfileModel CurrentRunningProfile { get; set; }
         Task LoadProfilesAsync();
         Task AddNewProfile(string name, KeyboardProfileConfiguration model);
+        Task UpdateProfile(string profileId, string name, KeyboardProfileConfiguration model);
     }
 }

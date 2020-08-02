@@ -78,5 +78,30 @@ namespace SuaveKeys.Infrastructure.Business.Services
                 return new UnexpectedResult<List<UserKeyboardProfileModel>>();
             }
         }
+
+        public async Task<Result<UserKeyboardProfileModel>> UpdateConfiguration(string userId, string profileId, string name, KeyboardProfileConfiguration configuration)
+        {
+            try
+            {
+                var profile = await _profileRepository.FindById(profileId);
+                if (profile is null)
+                    return new InvalidResult<UserKeyboardProfileModel>("Invalid profile ID.");
+
+                if (profile.UserId != userId)
+                    return new InvalidResult<UserKeyboardProfileModel>("You cannot delete a profile you don't own.");
+
+                profile.Name = name;
+                profile.ConfigurationJson = JsonConvert.SerializeObject(configuration);
+
+                await _profileRepository.SaveChangesAsync();
+
+                return new SuccessResult<UserKeyboardProfileModel>(new UserKeyboardProfileModel(profile));
+
+            }
+            catch (Exception)
+            {
+                return new UnexpectedResult<UserKeyboardProfileModel>();
+            }
+        }
     }
 }
