@@ -3,14 +3,35 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:d="http://xamarin.com/schemas/2014/forms/design"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:views="clr-namespace:SuaveKeys.Clients.Views"
              mc:Ignorable="d"
              x:Class="SuaveKeys.Clients.Views.ProfilesPage"
              Title="Profiles">
     <ContentPage.Content>
-        <StackLayout>
-            <Label Text="Profiles!"
-                VerticalOptions="CenterAndExpand" 
-                HorizontalOptions="CenterAndExpand" />
+        <StackLayout Orientation="Horizontal">
+            <CollectionView ItemsSource="{Binding Profiles}" SelectedItem="{Binding CurrentProfile, Mode=TwoWay}" SelectionMode="Single" WidthRequest="400">
+                <CollectionView.Header>
+                    <Button Text="Create new Profile" Command="{Binding CreateProfileCommand}"/>
+                </CollectionView.Header>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Label Text="{Binding Name}"/>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+            <ScrollView>
+                <StackLayout>
+                    <Entry Text="{Binding CurrentName}"/>
+                    <ScrollView Orientation="Horizontal">
+                        <views:KeyboardView SelectedKey="{Binding CurrentKey, Mode=TwoWay}"/>
+                    </ScrollView>
+                    <Label Text="Write a comma separated list of commands for this this key:"/>
+                    <Label Text="{Binding CurrentKey}"/>
+                    <Entry Text="{Binding CurrentKeyCommands}"/>
+                    <Button Text="Save Commands" Command="{Binding SaveProfileCommand}"/>
+                </StackLayout>
+            </ScrollView>
         </StackLayout>
+       
     </ContentPage.Content>
 </ContentPage>

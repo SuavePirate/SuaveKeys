@@ -1,0 +1,95 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ContentView xmlns="http://xamarin.com/schemas/2014/forms" 
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:views="clr-namespace:SuaveKeys.Clients.Views"
+             mc:Ignorable="d"
+             x:Class="SuaveKeys.Clients.Views.KeyboardView">
+    <ContentView.Resources>
+        <Style x:Key="KeySpacer" TargetType="BoxView">
+            <Setter Property="WidthRequest" Value="50"/>
+            <Setter Property="HeightRequest" Value="60"/>
+        </Style>
+    </ContentView.Resources>
+  <ContentView.Content>
+      <StackLayout Padding="32">
+            <StackLayout Orientation="Horizontal">
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="~"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="1"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="2"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="3"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="4"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="5"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="6"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="7"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="8"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="9"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="0"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="-"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="="/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="back" KeyWidth="120"/>
+            </StackLayout>
+            <StackLayout Orientation="Horizontal">
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="tab" KeyWidth="90"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="q"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="w"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="e"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="r"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="t"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="y"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="u"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="i"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="o"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="p"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="["/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="]"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="\" KeyWidth="90"/>
+            </StackLayout>
+            <StackLayout Orientation="Horizontal">
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="caps" KeyWidth="100"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="a"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="s"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="d"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="f" IsPressed="True"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="g"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="h"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="j"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="k"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="l"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label=";"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="'"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="enter" KeyWidth="140"/>
+            </StackLayout>
+            <StackLayout Orientation="Horizontal">
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="shift" KeyWidth="150"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="z"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="x"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="c"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="v"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="b"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="n"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="m"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label=","/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="."/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="/"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="shift" KeyWidth="145"/>
+                <BoxView Style="{StaticResource KeySpacer}"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="↑"/>
+            </StackLayout>
+            <StackLayout Orientation="Horizontal">
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="ctrl" KeyWidth="80"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="win"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="alt" KeyWidth="80"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="space" KeyWidth="420"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="alt" KeyWidth="80"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="fn"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="menu"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="ctrl" KeyWidth="80"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="←"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="↓"/>
+                <views:KeyView OnPressed="KeyView_OnPressed" Label="→"/>
+            </StackLayout>
+        </StackLayout>
+  </ContentView.Content>
+</ContentView>

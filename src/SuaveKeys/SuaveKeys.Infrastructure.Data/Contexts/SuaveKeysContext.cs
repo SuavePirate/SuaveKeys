@@ -14,6 +14,7 @@ namespace SuaveKeys.Infrastructure.Data.Contexts
         public DbSet<AuthClient> AuthClients { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<AuthorizationCode> AuthorizationCodes { get; set; }
+        public DbSet<UserKeyboardProfile> KeyboardProfiles { get; set; }
 
         public SuaveKeysContext(DbContextOptions options) : base(options)
         {

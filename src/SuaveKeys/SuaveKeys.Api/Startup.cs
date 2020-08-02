@@ -73,10 +73,12 @@ namespace SuaveKeys.Api
             services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
             services.AddScoped<IAuthClientRepository, AuthClientRepository>();
             services.AddScoped<IAuthorizationCodeRepository, AuthorizationCodeRepository>();
+            services.AddScoped<IUserKeyboardProfileRepository, UserKeyboardProfileRepository>();
 
             services.AddScoped<IUserAuthenticationService, UserAuthenticationService>();
             services.AddScoped<IHashProvider, SecureHashProvider>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IKeyboardProfileService, KeyboardProfileService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

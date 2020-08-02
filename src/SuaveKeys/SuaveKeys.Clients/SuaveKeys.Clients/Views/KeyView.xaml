@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ContentView xmlns="http://xamarin.com/schemas/2014/forms" 
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:sh="clr-namespace:Sharpnado.Shades;assembly=Sharpnado.Shadows"
+             mc:Ignorable="d"
+             x:Class="SuaveKeys.Clients.Views.KeyView">
+    <ContentView.Resources>
+        <Style x:Key="PinkNeumorphism" TargetType="sh:Shadows">
+            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="Shades">
+                <sh:ImmutableShades>
+                    <sh:Shade BlurRadius="10"
+                      Opacity="1"
+                      Offset="-6,-6"
+                      Color="#55FE99FE" />
+                    <sh:Shade BlurRadius="10"
+                      Opacity="1"
+                      Offset="6, 6"
+                      Color="#19000000" />
+                </sh:ImmutableShades>
+            </Setter>
+        </Style>
+    </ContentView.Resources>
+    <ContentView.Content>
+        <sh:Shadows Grid.Row="1"
+            Grid.Column="1"
+            CornerRadius="30"
+            x:Name="KeyShadow"
+            Style="{StaticResource PinkNeumorphism}">
+            <Button
+                WidthRequest="{Binding KeyWidth}"
+                HeightRequest="60"
+                HorizontalOptions="Center"
+                VerticalOptions="Center"
+                BackgroundColor="White"
+                Margin="2"
+                CornerRadius="30"
+                Text="{Binding Label}"
+                TextColor="Gray"
+                Clicked="Button_Clicked"/>
+        </sh:Shadows>
+    </ContentView.Content>
+</ContentView>

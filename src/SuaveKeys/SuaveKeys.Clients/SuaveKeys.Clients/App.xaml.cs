@@ -25,6 +25,7 @@ namespace SuaveKeys.Clients
         private void RegisterDependencies()
         {
             Container.Register<IAuthService, AuthService>();
+            Container.Register<IKeyboardProfileService, KeyboardProfileService>();
         }
 
         public void SetMainPage()

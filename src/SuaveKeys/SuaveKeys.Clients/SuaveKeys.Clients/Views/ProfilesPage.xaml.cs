@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SuaveKeys.Clients.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,9 +13,13 @@ namespace SuaveKeys.Clients.Views
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ProfilesPage : ContentPage
     {
+        private readonly ProfilePageViewModel _vm = new ProfilePageViewModel();
         public ProfilesPage()
         {
             InitializeComponent();
+            BindingContext = _vm;
+
+            _vm.LoadProfilesCommand?.Execute(null);
         }
     }
 }
