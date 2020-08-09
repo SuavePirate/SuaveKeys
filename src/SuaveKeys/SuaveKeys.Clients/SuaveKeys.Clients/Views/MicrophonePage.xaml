@@ -11,6 +11,9 @@
             <Label Text="Microphone!"
                 VerticalOptions="CenterAndExpand" 
                 HorizontalOptions="CenterAndExpand" />
+            <Button Text="Start Listening" Command="{Binding StartCommand}" HorizontalOptions="Center" VerticalOptions="Center"/>
+            <Button Text="Stop Listening" IsVisible="{Binding IsListening}" Command="{Binding StopCommand}" HorizontalOptions="Center" VerticalOptions="Center"/>
+
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

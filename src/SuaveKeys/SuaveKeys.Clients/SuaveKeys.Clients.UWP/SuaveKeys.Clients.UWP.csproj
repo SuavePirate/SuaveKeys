@@ -102,6 +102,7 @@
     <Compile Include="Renderer\DeviceSelectorRenderer.cs" />
     <Compile Include="Services\ArduinoSerialKeyboardService.cs" />
     <Compile Include="Services\UwpAuthClientSettings.cs" />
+    <Compile Include="Services\UwpSpeechToTextService.cs" />
     <Compile Include="Views\DeviceSelectorView.xaml.cs">
       <DependentUpon>DeviceSelectorView.xaml</DependentUpon>
     </Compile>

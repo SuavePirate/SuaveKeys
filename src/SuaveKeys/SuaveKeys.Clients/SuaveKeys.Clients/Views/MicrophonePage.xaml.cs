@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SuaveKeys.Clients.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,9 +13,11 @@ namespace SuaveKeys.Clients.Views
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class MicrophonePage : ContentPage
     {
+        private readonly MicrophonePageViewModel _vm = new MicrophonePageViewModel();
         public MicrophonePage()
         {
             InitializeComponent();
+            BindingContext = _vm;
         }
     }
 }
