@@ -48,7 +48,8 @@ namespace SuaveKeys.Clients.ViewModels
                 // make API call
                 await _keyboardService.UpdateProfile(CurrentProfile.Id, CurrentProfile.Name, new KeyboardProfileConfiguration()
                 {
-                    CommandKeyMappings = mapping
+                    CommandKeyMappings = mapping,
+                    Macros = CurrentProfile?.Configuration?.Macros ?? new List<MacroModel>()
                 });
             });
             PropertyChanged += ProfilePageViewModel_PropertyChanged;

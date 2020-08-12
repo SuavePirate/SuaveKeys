@@ -2,6 +2,7 @@
 using SuaveKeys.Core.Models.Transfer.Keyboard;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,6 +20,7 @@ namespace SuaveKeys.Clients.Views
         {
             InitializeComponent();
             _vm.CurrentProfile = model;
+            _vm.Macros = new ObservableCollection<MacroModel>(model?.Configuration?.Macros ?? new List<MacroModel>());
             BindingContext = _vm;
         }
     }

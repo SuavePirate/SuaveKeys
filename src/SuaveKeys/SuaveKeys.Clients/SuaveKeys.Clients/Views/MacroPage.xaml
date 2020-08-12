@@ -7,8 +7,21 @@
              x:Class="SuaveKeys.Clients.Views.MacroPage"
              Title="{Binding CurrentProfile.Name}">
     <ContentPage.Content>
-        <StackLayout>
-            <Label Text="{Binding CurrentProfile.Name}"/>
+        <StackLayout Orientation="Horizontal">
+            <CollectionView ItemsSource="{Binding Macros}" SelectedItem="{Binding CurrentMacro, Mode=TwoWay}" SelectionMode="Single" WidthRequest="400">
+                <CollectionView.Header>
+                    <Button Text="Create new macro" Command="{Binding CreateMacroCommand}"/>
+                </CollectionView.Header>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Label Text="{Binding Phrase}"/>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+            <StackLayout HorizontalOptions="FillAndExpand" Padding="32">
+                <Label Text="{Binding CurrentMacro.Phrase}"/>
+                <Button Text="Save Macros" Command="{Binding SaveProfileCommand}" HorizontalOptions="CenterAndExpand"/>
+            </StackLayout>
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

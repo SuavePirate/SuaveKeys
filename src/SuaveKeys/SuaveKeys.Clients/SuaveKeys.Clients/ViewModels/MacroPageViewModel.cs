@@ -1,7 +1,9 @@
-﻿using SuaveKeys.Clients.Services;
+﻿using Acr.UserDialogs;
+using SuaveKeys.Clients.Services;
 using SuaveKeys.Core.Models.Transfer.Keyboard;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Windows.Input;
@@ -14,42 +16,41 @@ namespace SuaveKeys.Clients.ViewModels
         private readonly IKeyboardProfileService _keyboardService;
 
         public UserKeyboardProfileModel CurrentProfile { get; set; }
-
         public ICommand SaveProfileCommand { get; set; }
-
+        public ICommand CreateMacroCommand { get; set; }
         public string CurrentKey { get; set; }
-        public string CurrentKeyCommands { get; set; }
+        public MacroModel CurrentMacro { get; set; }
+        public ObservableCollection<MacroModel> Macros { get; set; }
 
         public MacroPageViewModel()
         {
             _keyboardService = App.Current.Container.Resolve<IKeyboardProfileService>();
-
+            CreateMacroCommand = new Command(async () =>
+            {
+                var name = await UserDialogs.Instance.PromptAsync("Enter a new macro phrase. This is the spoken phrase to trigger the macro", "New Macro", "Ok", "Cancel", "New Profile");
+                if (!string.IsNullOrEmpty(name?.Text))
+                {
+                    Macros.Add(new MacroModel
+                    {
+                        Phrase = name.Text,
+                        Events = new List<MacroEvent>()
+                    });
+                }
+            });
             SaveProfileCommand = new Command(async () =>
             {
                 if (string.IsNullOrEmpty(CurrentKey) || CurrentProfile?.Configuration == null)
                     return;
 
-                var mapping = CurrentProfile.Configuration.CommandKeyMappings;
-
-                // get the existing values for the current key
-                var commandMappings = mapping?.Where(m => m.Value == CurrentKey)?.ToList();
-
-                // remove the existing values
-                foreach (var map in commandMappings)
-                    mapping.Remove(map.Key);
-
-                // generate new values based off text box
-                var values = CurrentKeyCommands.Split(',');
-                foreach (var command in values)
-                {
-                    mapping.Add(command.Trim(), CurrentKey);
-                }
+                // TODO: build macro list and set it along side existing properties from commands and name
 
                 // make API call
                 await _keyboardService.UpdateProfile(CurrentProfile.Id, CurrentProfile.Name, new KeyboardProfileConfiguration()
                 {
-                    CommandKeyMappings = mapping
+                    CommandKeyMappings = CurrentProfile?.Configuration?.CommandKeyMappings ?? new Dictionary<string, string>(),
+                    Macros =  Macros.ToList()
                 });
+
             });
             PropertyChanged += ProfilePageViewModel_PropertyChanged;
 
@@ -57,15 +58,6 @@ namespace SuaveKeys.Clients.ViewModels
 
         private void ProfilePageViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(CurrentKey))
-            {
-                // get the commands from the current profile
-                var commandMappings = CurrentProfile?.Configuration?.CommandKeyMappings?.Where(m => m.Value == CurrentKey)?.Select(m => m.Key);
-                if (commandMappings != null)
-                {
-                    CurrentKeyCommands = string.Join(",", commandMappings);
-                }
-            }
            
         }
 
