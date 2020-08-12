@@ -11,7 +11,7 @@ namespace SuaveKeys.Core.Models.Transfer.Keyboard
         /// The key of the dictionary is the command, and the value is the keyboard key
         /// </summary>
         public Dictionary<string, string> CommandKeyMappings { get; set; }
-
+        public List<MacroModel> Macros { get; set; }
         // NOTE: when we implement macros, those will go here too
 
     }

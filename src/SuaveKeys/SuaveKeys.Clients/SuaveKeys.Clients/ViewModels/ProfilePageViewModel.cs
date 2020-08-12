@@ -1,5 +1,6 @@
 ﻿using Acr.UserDialogs;
 using SuaveKeys.Clients.Services;
+using SuaveKeys.Clients.Views;
 using SuaveKeys.Core.Models.Transfer.Keyboard;
 using System;
 using System.Collections.Generic;
@@ -17,11 +18,14 @@ namespace SuaveKeys.Clients.ViewModels
         public ObservableCollection<UserKeyboardProfileModel> Profiles => _keyboardService.Profiles;
         public UserKeyboardProfileModel CurrentProfile { get; set; }
         public ICommand LoadProfilesCommand { get; set; }
-        public ICommand SaveProfileCommand { get; set; }
         public ICommand CreateProfileCommand { get; set; }
+        public ICommand CommandsCommand { get; set; }
+        public ICommand SaveProfileCommand { get; set; }
+        public ICommand MacroCommand { get; set; }
         public string CurrentKey { get; set; }
         public string CurrentKeyCommands { get; set; }
         public string CurrentName { get; set; }
+        public bool IsProfileSelected => CurrentProfile != null;
 
         public ProfilePageViewModel()
         {
@@ -41,49 +45,31 @@ namespace SuaveKeys.Clients.ViewModels
                         CommandKeyMappings = new Dictionary<string, string>()
                     });
                 }
-            });
+            }); 
             SaveProfileCommand = new Command(async () =>
             {
-                if (string.IsNullOrEmpty(CurrentKey) || CurrentProfile?.Configuration == null)
+                if (CurrentProfile?.Configuration == null)
                     return;
 
-                var mapping = CurrentProfile.Configuration.CommandKeyMappings;
-                
-                // get the existing values for the current key
-                var commandMappings = mapping?.Where(m => m.Value == CurrentKey)?.ToList();
-
-                // remove the existing values
-                foreach (var map in commandMappings)
-                    mapping.Remove(map.Key);
-
-                // generate new values based off text box
-                var values = CurrentKeyCommands.Split(',');
-                foreach(var command in values)
-                {
-                    mapping.Add(command.Trim(), CurrentKey);
-                }
-
                 // make API call
-                await _keyboardService.UpdateProfile(CurrentProfile.Id, CurrentName, new KeyboardProfileConfiguration()
-                {
-                    CommandKeyMappings = mapping
-                });
+                await _keyboardService.UpdateProfile(CurrentProfile.Id, CurrentName, CurrentProfile.Configuration);
             });
+            CommandsCommand = new Command(async () =>
+            {
+                await (App.Current.MainPage as NavigationPage)?.PushAsync(new KeyboardCommandPage(CurrentProfile));
+            });
+
+            MacroCommand = new Command(async () =>
+            {
+                await (App.Current.MainPage as NavigationPage)?.PushAsync(new MacroPage(CurrentProfile));
+            });
+
 
             this.PropertyChanged += ProfilePageViewModel_PropertyChanged;
         }
 
         private void ProfilePageViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if(e.PropertyName == nameof(CurrentKey))
-            {
-                // get the commands from the current profile
-                var commandMappings = CurrentProfile?.Configuration?.CommandKeyMappings?.Where(m => m.Value == CurrentKey)?.Select(m => m.Key);
-                if(commandMappings != null)
-                {
-                    CurrentKeyCommands = string.Join(",", commandMappings);
-                }
-            }
             if(e.PropertyName == nameof(CurrentProfile))
             {
                 CurrentName = CurrentProfile?.Name;

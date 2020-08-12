@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:views="clr-namespace:SuaveKeys.Clients.Views"
+             mc:Ignorable="d"
+             x:Class="SuaveKeys.Clients.Views.KeyboardCommandPage"
+             Title="{Binding CurrentProfile.Name}">
+    <ContentPage.Content>
+        <ScrollView Margin="32">
+            <StackLayout>
+                <ScrollView Orientation="Horizontal">
+                    <views:KeyboardView SelectedKey="{Binding CurrentKey, Mode=TwoWay}"/>
+                </ScrollView>
+                <Label Text="Write a comma separated list of commands for this this key:"/>
+                <Label Text="{Binding CurrentKey}"/>
+                <Entry Text="{Binding CurrentKeyCommands}"/>
+                <Button Text="Save Commands" Command="{Binding SaveProfileCommand}"/>
+            </StackLayout>
+        </ScrollView>
+    </ContentPage.Content>
+</ContentPage>

@@ -19,18 +19,14 @@
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-            <ScrollView>
-                <StackLayout>
-                    <Entry Text="{Binding CurrentName}"/>
-                    <ScrollView Orientation="Horizontal">
-                        <views:KeyboardView SelectedKey="{Binding CurrentKey, Mode=TwoWay}"/>
-                    </ScrollView>
-                    <Label Text="Write a comma separated list of commands for this this key:"/>
-                    <Label Text="{Binding CurrentKey}"/>
-                    <Entry Text="{Binding CurrentKeyCommands}"/>
-                    <Button Text="Save Commands" Command="{Binding SaveProfileCommand}"/>
-                </StackLayout>
-            </ScrollView>
+            <StackLayout IsVisible="{Binding IsProfileSelected}" HorizontalOptions="FillAndExpand">
+                <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+                    <Entry Text="{Binding CurrentName}" HorizontalOptions="FillAndExpand"/>
+                    <Button Text="Save Profile Name" Command="{Binding SaveProfileCommand}"/>
+                </StackLayout>                
+                <Button Text="Manage Commands" Command="{Binding CommandsCommand}" HorizontalOptions="Center" VerticalOptions="Center"/>
+                <Button Text="Manage Macros" Command="{Binding MacroCommand}" HorizontalOptions="Center" VerticalOptions="Center"/>
+            </StackLayout>
         </StackLayout>
        
     </ContentPage.Content>

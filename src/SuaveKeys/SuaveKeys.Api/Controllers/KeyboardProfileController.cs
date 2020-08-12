@@ -32,7 +32,7 @@ namespace SuaveKeys.Api.Controllers
         }
 
         [HttpPut("{profileId}")]
-        public async Task<IActionResult> Create(string profileId, string name, [FromBody]KeyboardProfileConfiguration model)
+        public async Task<IActionResult> Update(string profileId, string name, [FromBody]KeyboardProfileConfiguration model)
         {
             var result = await _keyboardProfileService.UpdateConfiguration(GetUserId(), profileId, name, model);
             if (result?.ResultType == ServiceResult.ResultType.Ok)

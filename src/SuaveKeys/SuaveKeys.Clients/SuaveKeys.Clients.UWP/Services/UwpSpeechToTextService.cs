@@ -31,14 +31,13 @@ namespace SuaveKeys.Clients.UWP.Services
                 await speechRecognizer.CompileConstraintsAsync();
 
                 // Start recognition.
-                SpeechRecognitionResult speechRecognitionResult = await speechRecognizer.RecognizeAsync();
+                var speechRecognitionResult = await speechRecognizer.RecognizeAsync();
 
-                //// Do something with the recognition result.
+                // Do something with the recognition result.
                 OnSpeechRecognized?.Invoke(this, new SpeechRecognizedEventArgs
                 {
                     Speech = speechRecognitionResult.Text
                 });
-                //do your long running task here
             }
         }
 
