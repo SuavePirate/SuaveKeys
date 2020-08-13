@@ -23,5 +23,10 @@ namespace SuaveKeys.Clients.Views
             _vm.Macros = new ObservableCollection<MacroModel>(model?.Configuration?.Macros ?? new List<MacroModel>());
             BindingContext = _vm;
         }
+
+        private void EditMacroView_OnChange(object sender, MacroEditArgs e)
+        {
+            // send to VM to update it
+        }
     }
 }

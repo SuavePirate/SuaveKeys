@@ -18,10 +18,13 @@ namespace SuaveKeys.Clients.ViewModels
         public UserKeyboardProfileModel CurrentProfile { get; set; }
         public ICommand SaveProfileCommand { get; set; }
         public ICommand CreateMacroCommand { get; set; }
+        public ICommand CreateMacroEventCommand { get; set; }
         public string CurrentKey { get; set; }
         public MacroModel CurrentMacro { get; set; }
         public ObservableCollection<MacroModel> Macros { get; set; }
-
+        public string SelectedNewEventType { get; set; }
+        public ObservableCollection<MacroEvent> CurrentEvents { get; set; }
+        public bool HasCurrentMacro => CurrentMacro != null;
         public MacroPageViewModel()
         {
             _keyboardService = App.Current.Container.Resolve<IKeyboardProfileService>();
@@ -37,6 +40,25 @@ namespace SuaveKeys.Clients.ViewModels
                     });
                 }
             });
+            CreateMacroEventCommand = new Command(() =>
+            {
+                if (CurrentMacro == null)
+                    return;
+
+                var type = MacroEventType.KeyPress;
+                switch(SelectedNewEventType)
+                {
+                    case "Pause": type = MacroEventType.Pause;
+                        break;
+                    case "Type": type = MacroEventType.Type;
+                        break;
+                }
+                CurrentMacro.Events.Add(new MacroEvent
+                {
+                    EventType = type
+                });
+            });
+
             SaveProfileCommand = new Command(async () =>
             {
                 if (string.IsNullOrEmpty(CurrentKey) || CurrentProfile?.Configuration == null)
@@ -58,7 +80,10 @@ namespace SuaveKeys.Clients.ViewModels
 
         private void ProfilePageViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-           
+           if(e.PropertyName == nameof(CurrentMacro))
+            {
+                CurrentEvents = new ObservableCollection<MacroEvent>(CurrentMacro?.Events ?? new List<MacroEvent>());
+            }
         }
 
     }

@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:d="http://xamarin.com/schemas/2014/forms/design"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:views="clr-namespace:SuaveKeys.Clients.Views"
              mc:Ignorable="d"
              x:Class="SuaveKeys.Clients.Views.MacroPage"
              Title="{Binding CurrentProfile.Name}">
@@ -18,8 +19,29 @@
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-            <StackLayout HorizontalOptions="FillAndExpand" Padding="32">
+            <StackLayout Padding="32">
                 <Label Text="{Binding CurrentMacro.Phrase}"/>
+                
+                <StackLayout BindableLayout.ItemsSource="{Binding CurrentEvents}" WidthRequest="600">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate>
+                            <views:EditMacroView OnChange="EditMacroView_OnChange" MacroEvent="{Binding .}"/>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </StackLayout>
+                <StackLayout IsVisible="{Binding HasCurrentMacro}">
+                    <Picker SelectedItem="{Binding SelectedNewEventType}" ItemDisplayBinding="{Binding .}">
+                        <Picker.ItemsSource>
+                            <x:Array Type="{x:Type x:String}">
+                                <x:String>Key</x:String>
+                                <x:String>Pause</x:String>
+                                <x:String>Type</x:String>
+                            </x:Array>
+                        </Picker.ItemsSource>
+                    </Picker>
+                    <Button Text="Add Event" Command="{Binding CreateMacroEventCommand}"/>
+                </StackLayout>
+
                 <Button Text="Save Macros" Command="{Binding SaveProfileCommand}" HorizontalOptions="CenterAndExpand"/>
             </StackLayout>
         </StackLayout>
