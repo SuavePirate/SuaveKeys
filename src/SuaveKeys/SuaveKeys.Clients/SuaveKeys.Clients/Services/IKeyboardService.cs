@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SuaveKeys.Clients.Models;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,5 +13,6 @@ namespace SuaveKeys.Clients.Services
     {
         Task Type(string input);
         Task Press(string key);
+        event EventHandler<KeyboardEventArgs> OnKeyEvent;
     }
 }

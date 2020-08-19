@@ -31,13 +31,8 @@ namespace SuaveKeys.Clients.Uwp
         private DeviceInformation device;
         private String deviceSelector;
 
-        public String InstanceId
-        {
-            get
-            {
-                return device.Properties[DeviceProperties.DeviceInstanceId] as String;
-            }
-        }
+        public string InstanceId => device.Properties[DeviceProperties.DeviceInstanceId] as string;
+        public string DisplayName => device.Name;
 
         public DeviceInformation DeviceInformation
         {

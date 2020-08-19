@@ -31,7 +31,7 @@
                     <ListBox x:Name="ConnectDevices" ItemsSource="{Binding Source={StaticResource DeviceListSource}}"  Height="250" Background="Gray">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding InstanceId}"/>
+                                <TextBlock Text="{Binding DisplayName}"/>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>

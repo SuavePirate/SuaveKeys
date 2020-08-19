@@ -19,31 +19,53 @@
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-            <StackLayout Padding="32">
-                <Label Text="{Binding CurrentMacro.Phrase}"/>
-                
-                <StackLayout BindableLayout.ItemsSource="{Binding CurrentEvents}" WidthRequest="600">
-                    <BindableLayout.ItemTemplate>
-                        <DataTemplate>
-                            <views:EditMacroView OnChange="EditMacroView_OnChange" MacroEvent="{Binding .}"/>
-                        </DataTemplate>
-                    </BindableLayout.ItemTemplate>
-                </StackLayout>
-                <StackLayout IsVisible="{Binding HasCurrentMacro}">
-                    <Picker SelectedItem="{Binding SelectedNewEventType}" ItemDisplayBinding="{Binding .}">
-                        <Picker.ItemsSource>
-                            <x:Array Type="{x:Type x:String}">
-                                <x:String>Key</x:String>
-                                <x:String>Pause</x:String>
-                                <x:String>Type</x:String>
-                            </x:Array>
-                        </Picker.ItemsSource>
-                    </Picker>
-                    <Button Text="Add Event" Command="{Binding CreateMacroEventCommand}"/>
-                </StackLayout>
+            <ScrollView>
+                <StackLayout Padding="32">
+                    <Label Text="{Binding CurrentMacro.Phrase}"/>
 
-                <Button Text="Save Macros" Command="{Binding SaveProfileCommand}" HorizontalOptions="CenterAndExpand"/>
-            </StackLayout>
+                    <StackLayout x:Name="EventsList" BindableLayout.ItemsSource="{Binding CurrentEvents}" WidthRequest="600">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate>
+                                <StackLayout Margin="16">
+                                    <Label Text="{Binding DisplayName}" Margin="8"/>
+                                    <Label Text="Key to press" IsVisible="{Binding IsKey}"/>
+                                    <Entry Text="{Binding Key}" IsVisible="{Binding IsKey}" Placeholder="Key"/>
+
+                                    <Label Text="Hold Time (in milliseconds)" IsVisible="{Binding IsKey}"/>
+                                    <Entry Text="{Binding HoldTimeMilliseconds}" IsVisible="{Binding IsKey}" Keyboard="Numeric" Placeholder="Hold time"/>
+
+                                    <Label Text="Hold Time (in milliseconds)" IsVisible="{Binding IsPause}"/>
+                                    <Entry Text="{Binding HoldTimeMilliseconds}" IsVisible="{Binding IsPause}" Keyboard="Numeric" Placeholder="Hold time"/>
+
+                                    <Label Text="Phrase to be typed" IsVisible="{Binding IsType}"/>
+                                    <Entry Text="{Binding TypedPhrase}" IsVisible="{Binding IsType}" Placeholder="Typed phrase"/>
+
+                                    <StackLayout Orientation="Horizontal">
+                                        <Button Command="{Binding BindingContext.MoveEventUpCommand, Source={x:Reference EventsList}}" CommandParameter="{Binding .}" Text="Move Up"/>
+                                        <Button Command="{Binding BindingContext.MoveEventDownCommand, Source={x:Reference EventsList}}" CommandParameter="{Binding .}" Text="Move Down"/>
+                                        <Button Command="{Binding BindingContext.RemoveEventCommand, Source={x:Reference EventsList}}" CommandParameter="{Binding .}" Text="Remove"/>
+                                    </StackLayout>
+                                </StackLayout>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </StackLayout>
+                    <StackLayout IsVisible="{Binding HasCurrentMacro}">
+                        <Label Text="Add a new event. Select the event type, then click/tap 'Add Event'"/>
+                        <Picker SelectedItem="{Binding SelectedNewEventType}" ItemDisplayBinding="{Binding .}">
+                            <Picker.ItemsSource>
+                                <x:Array Type="{x:Type x:String}">
+                                    <x:String>Key</x:String>
+                                    <x:String>Pause</x:String>
+                                    <x:String>Type</x:String>
+                                </x:Array>
+                            </Picker.ItemsSource>
+                        </Picker>
+                        <Button Text="Add Event" Command="{Binding CreateMacroEventCommand}"/>
+                    </StackLayout>
+
+                    <Button Text="Save Macro" Command="{Binding SaveProfileCommand}" HorizontalOptions="CenterAndExpand"/>
+                </StackLayout>
+            </ScrollView>
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

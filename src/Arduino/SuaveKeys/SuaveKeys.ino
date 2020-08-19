@@ -32,6 +32,17 @@ void loop() {
 
 void PressKeyCommand() {
   String arg = serialCommand.next();
+
+  int holdMilliseconds = 50;
+  String nextArg = serialCommand.next();
+  while(nextArg != NULL) {
+    if(isValidNumber(nextArg)) {
+      holdMilliseconds = nextArg.toInt();
+      break;
+    } else {
+      nextArg = serialCommand.next();      
+    }
+  }
   
   Keyboard.begin();
   Keyboard.releaseAll();
@@ -47,11 +58,14 @@ void PressKeyCommand() {
   else if (arg == "alt") {
     Keyboard.press(KEY_LEFT_ALT);
   }
+  else if (arg == "tab") {
+    Keyboard.press(KEY_TAB);
+  }
   else {
     
     Keyboard.press(arg[0]);
   }
-  delay(50);   
+  delay(holdMilliseconds);   
   Keyboard.releaseAll();
   Keyboard.end();
 }
@@ -67,6 +81,15 @@ void TypeCommand() {
   }
   Keyboard.releaseAll();
   Keyboard.end();
+}
+boolean isValidNumber(String str){
+   boolean isNum=false;
+   for(byte i=0;i<str.length();i++)
+   {
+       isNum = isDigit(str.charAt(i)) || str.charAt(i) == '+' || str.charAt(i) == '.' || str.charAt(i) == '-';
+       if(!isNum) return false;
+   }
+   return isNum;
 }
 //
 // Enable or disable debug messages from being printed

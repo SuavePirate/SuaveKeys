@@ -10,7 +10,8 @@
              x:Class="SuaveKeys.Clients.Views.MainPage">
   <!--Pages can be added as references or inline-->
     <views:KeyboardPage />
-    <views:MicrophonePage/>
     <views:ProfilesPage/>
+    <views:MicrophonePage/>
+    <views:CommandLogPage/>
     <views:SettingsPage/>
 </TabbedPage>

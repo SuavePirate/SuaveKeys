@@ -1,6 +1,8 @@
-﻿using SuaveKeys.Clients.Services;
+﻿using SuaveKeys.Clients.Models;
+using SuaveKeys.Clients.Services;
 using SuaveKeys.Clients.Uwp;
 using SuaveKeys.Clients.UWP.Views;
+using SuaveKeys.Core.Models.Transfer.Keyboard;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -16,24 +18,51 @@ namespace SuaveKeys.Clients.UWP.Services
     {
         private readonly IKeyboardProfileService _keyboardProfileService;
 
+        public event EventHandler<KeyboardEventArgs> OnKeyEvent;
         public ArduinoSerialKeyboardService(IKeyboardProfileService keyboardProfileService)
         {
             _keyboardProfileService = keyboardProfileService;
         }
-
-        public async Task Press(string key)
+        public async Task Press(string keyPhrase)
         {
+            if (string.IsNullOrEmpty(keyPhrase))
+                return;
+
             if (EventHandlerForDevice.Current.IsDeviceConnected)
             {
                 try
                 {
-                    if (_keyboardProfileService.CurrentRunningProfile?.Configuration?.CommandKeyMappings?.ContainsKey(key) == true)
+                    // check for macros that match phrase
+                    // if macro exists, run the macro
+                    OnKeyEvent?.Invoke(this, new KeyboardEventArgs { KeyInfo = $"Key: {keyPhrase}" });
+                    if (_keyboardProfileService.CurrentRunningProfile?.Configuration?.Macros?.Any(m => m.Phrase.ToLower() == keyPhrase.ToLower()) == true)
                     {
-                        key = _keyboardProfileService.CurrentRunningProfile?.Configuration?.CommandKeyMappings[key];
+                        // run the macro
+                        OnKeyEvent?.Invoke(this, new KeyboardEventArgs { KeyInfo = $"Running macro." });
+                        var macro = _keyboardProfileService.CurrentRunningProfile.Configuration.Macros.FirstOrDefault(m => m.Phrase.ToLower() == keyPhrase.ToLower());
+                        foreach(var macroEvent in macro?.Events ?? Enumerable.Empty<MacroEvent>())
+                        {
+                            switch(macroEvent.EventType)
+                            {
+                                case MacroEventType.KeyPress: await SendPressKeyEvent(macroEvent.Key, macroEvent.HoldTimeMilliseconds > 50 ? macroEvent.HoldTimeMilliseconds : 50);
+                                    break;
+                                case MacroEventType.Pause: Thread.Sleep(macroEvent.HoldTimeMilliseconds);
+                                    break;
+                                case MacroEventType.Type: await Type(macroEvent?.TypedPhrase ?? "");
+                                    break;
+                            }
+                        }
+                        return;
                     }
-                    DeviceSelectorView.Current?.SetDataWriterObject(new DataWriter(EventHandlerForDevice.Current.Device.OutputStream));
-                    DeviceSelectorView.Current?.DataWriterObject.WriteString($"press {key}\n");
-                    await DeviceSelectorView.Current?.WriteAsync(CancellationToken.None);
+                    // if no macro, check commands
+                    else if (_keyboardProfileService.CurrentRunningProfile?.Configuration?.CommandKeyMappings?.ContainsKey(keyPhrase) == true)
+                    {
+                        keyPhrase = _keyboardProfileService.CurrentRunningProfile?.Configuration?.CommandKeyMappings[keyPhrase];
+                        OnKeyEvent?.Invoke(this, new KeyboardEventArgs { KeyInfo = $"Mapped Key: {keyPhrase}" });
+                    }
+                    // if no commands, send the original phrase
+
+                    await SendPressKeyEvent(keyPhrase);
                 }
                 catch (OperationCanceledException /*exception*/)
                 {
@@ -56,8 +85,16 @@ namespace SuaveKeys.Clients.UWP.Services
             }
         }
 
+        private async Task SendPressKeyEvent(string keyPhrase, int? holdMilliseconds = null)
+        {
+            DeviceSelectorView.Current?.SetDataWriterObject(new DataWriter(EventHandlerForDevice.Current.Device.OutputStream));
+            DeviceSelectorView.Current?.DataWriterObject.WriteString($"press {keyPhrase} {holdMilliseconds?.ToString() ?? ""}\n");
+            await DeviceSelectorView.Current?.WriteAsync(CancellationToken.None);
+        }
+
         public async Task Type(string input)
         {
+            OnKeyEvent?.Invoke(this, new KeyboardEventArgs { KeyInfo = $"Typing: {input}" });
             if (EventHandlerForDevice.Current.IsDeviceConnected)
             {
                 try

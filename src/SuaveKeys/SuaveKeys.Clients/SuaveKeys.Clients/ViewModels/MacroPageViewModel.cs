@@ -19,18 +19,21 @@ namespace SuaveKeys.Clients.ViewModels
         public ICommand SaveProfileCommand { get; set; }
         public ICommand CreateMacroCommand { get; set; }
         public ICommand CreateMacroEventCommand { get; set; }
+        public ICommand RemoveEventCommand { get; set; }
+        public ICommand MoveEventUpCommand { get; set; }
+        public ICommand MoveEventDownCommand { get; set; }
         public string CurrentKey { get; set; }
         public MacroModel CurrentMacro { get; set; }
         public ObservableCollection<MacroModel> Macros { get; set; }
         public string SelectedNewEventType { get; set; }
-        public ObservableCollection<MacroEvent> CurrentEvents { get; set; }
+        public ObservableCollection<MacroEventViewModel> CurrentEvents { get; set; }
         public bool HasCurrentMacro => CurrentMacro != null;
         public MacroPageViewModel()
         {
             _keyboardService = App.Current.Container.Resolve<IKeyboardProfileService>();
             CreateMacroCommand = new Command(async () =>
             {
-                var name = await UserDialogs.Instance.PromptAsync("Enter a new macro phrase. This is the spoken phrase to trigger the macro", "New Macro", "Ok", "Cancel", "New Profile");
+                var name = await UserDialogs.Instance.PromptAsync("Enter a new macro phrase. This is the spoken phrase to trigger the macro", "New Macro", "Ok", "Cancel", "Spoken phrase for macro");
                 if (!string.IsNullOrEmpty(name?.Text))
                 {
                     Macros.Add(new MacroModel
@@ -53,24 +56,49 @@ namespace SuaveKeys.Clients.ViewModels
                     case "Type": type = MacroEventType.Type;
                         break;
                 }
-                CurrentMacro.Events.Add(new MacroEvent
+                CurrentEvents.Add(new MacroEventViewModel
                 {
                     EventType = type
                 });
             });
-
-            SaveProfileCommand = new Command(async () =>
+            RemoveEventCommand = new Command<MacroEventViewModel>((eventModel) =>
             {
-                if (string.IsNullOrEmpty(CurrentKey) || CurrentProfile?.Configuration == null)
+                CurrentEvents?.Remove(eventModel);
+            });
+
+            MoveEventUpCommand = new Command<MacroEventViewModel>((eventModel) =>
+            {
+                var currentIndex = CurrentEvents.IndexOf(eventModel);
+                if (currentIndex == 0)
                     return;
 
-                // TODO: build macro list and set it along side existing properties from commands and name
+                CurrentEvents.Move(currentIndex, currentIndex - 1);
+            });
+            MoveEventDownCommand = new Command<MacroEventViewModel>((eventModel) =>
+            {
+                var currentIndex = CurrentEvents.IndexOf(eventModel);
+                if (currentIndex == CurrentEvents.Count - 1)
+                    return;
+
+                CurrentEvents.Move(currentIndex, currentIndex + 1);
+            });
+            SaveProfileCommand = new Command(async () =>
+            {
+                if (CurrentProfile?.Configuration == null)
+                    return;
+
+                var macros = Macros?.ToList() ?? new List<MacroModel>();
+                var currentMacro = macros.FirstOrDefault(m => m.Phrase == CurrentMacro.Phrase);
+                if (currentMacro == null)
+                    return;
+
+                currentMacro.Events = CurrentEvents.Select(m => m as MacroEvent).ToList();
 
                 // make API call
                 await _keyboardService.UpdateProfile(CurrentProfile.Id, CurrentProfile.Name, new KeyboardProfileConfiguration()
                 {
                     CommandKeyMappings = CurrentProfile?.Configuration?.CommandKeyMappings ?? new Dictionary<string, string>(),
-                    Macros =  Macros.ToList()
+                    Macros = macros
                 });
 
             });
@@ -82,7 +110,8 @@ namespace SuaveKeys.Clients.ViewModels
         {
            if(e.PropertyName == nameof(CurrentMacro))
             {
-                CurrentEvents = new ObservableCollection<MacroEvent>(CurrentMacro?.Events ?? new List<MacroEvent>());
+                CurrentEvents = new ObservableCollection<MacroEventViewModel>(
+                    CurrentMacro?.Events?.Select(m => new MacroEventViewModel(m)) ?? new List<MacroEventViewModel>());
             }
         }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -30,7 +31,23 @@ namespace SuaveKeys.Clients.UWP
         {
             this.InitializeComponent();
             this.Suspending += OnSuspending;
+            this.UnhandledException += App_UnhandledException;
         }
+
+        private void App_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
+        {
+            e.Handled = true;
+#if !DEBUG
+   // log
+            global::System.Console.WriteLine(e.Exceptions);
+#else
+            if (Debugger.IsAttached)
+            {
+                Debugger.Break();
+            }
+#endif
+        }
+
 
         /// <summary>
         /// Invoked when the application is launched normally by the end user.  Other entry points

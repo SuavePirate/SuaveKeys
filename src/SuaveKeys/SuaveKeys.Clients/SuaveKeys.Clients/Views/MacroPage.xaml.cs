@@ -16,17 +16,13 @@ namespace SuaveKeys.Clients.Views
     public partial class MacroPage : ContentPage
     {
         private readonly MacroPageViewModel _vm = new MacroPageViewModel();
+
         public MacroPage(UserKeyboardProfileModel model)
         {
             InitializeComponent();
             _vm.CurrentProfile = model;
             _vm.Macros = new ObservableCollection<MacroModel>(model?.Configuration?.Macros ?? new List<MacroModel>());
             BindingContext = _vm;
-        }
-
-        private void EditMacroView_OnChange(object sender, MacroEditArgs e)
-        {
-            // send to VM to update it
         }
     }
 }

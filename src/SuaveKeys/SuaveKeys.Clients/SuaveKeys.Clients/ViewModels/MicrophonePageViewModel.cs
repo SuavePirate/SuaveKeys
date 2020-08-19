@@ -23,6 +23,7 @@ namespace SuaveKeys.Clients.ViewModels
 
             StartCommand = new Command(async () =>
             {
+                await _speechToTextService?.InitializeAsync();
                 await _speechToTextService?.StartAsync();
                 IsListening = true;
             });
@@ -32,11 +33,11 @@ namespace SuaveKeys.Clients.ViewModels
             });
         }
 
-        private void SpeechToTextService_OnSpeechRecognized(object sender, Models.SpeechRecognizedEventArgs e)
+        private async void SpeechToTextService_OnSpeechRecognized(object sender, Models.SpeechRecognizedEventArgs e)
         {
             _keyboardService?.Press(e.Speech);
             if (IsListening)
-                StartCommand?.Execute(null);
+                await _speechToTextService?.StartAsync();
         }
     }
 }

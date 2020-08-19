@@ -1,4 +1,5 @@
-﻿using SuaveKeys.Clients.Models;
+﻿using Acr.UserDialogs;
+using SuaveKeys.Clients.Models;
 using SuaveKeys.Clients.Services;
 using System;
 using System.Collections.Generic;
@@ -15,15 +16,23 @@ namespace SuaveKeys.Clients.UWP.Services
     {
         public event EventHandler<SpeechRecognizedEventArgs> OnSpeechRecognized;
 
-        public async Task StartAsync()
+        public async Task InitializeAsync()
         {
-            var hasPermission = await AudioCapturePermissions.RequestMicrophonePermission();
-            if (!hasPermission) return;
             var session = new ExtendedExecutionSession();
             session.Reason = ExtendedExecutionReason.Unspecified;
             var result = await session.RequestExtensionAsync();
-            if (result == ExtendedExecutionResult.Allowed)
+            if (result != ExtendedExecutionResult.Allowed)
             {
+                await UserDialogs.Instance.AlertAsync("Unable to connect to background for mic");
+            }
+        }
+        public async Task StartAsync()
+        {
+            try
+            {
+                var hasPermission = await AudioCapturePermissions.RequestMicrophonePermission();
+                if (!hasPermission) return;
+
                 // Create an instance of SpeechRecognizer.
                 var speechRecognizer = new SpeechRecognizer();
 
@@ -38,63 +47,72 @@ namespace SuaveKeys.Clients.UWP.Services
                 {
                     Speech = speechRecognitionResult.Text
                 });
+            
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                OnSpeechRecognized?.Invoke(this, new SpeechRecognizedEventArgs
+                {
+                    Speech = $"Error {ex}"
+                });
             }
         }
 
         private class AudioCapturePermissions
+{
+    // If no microphone is present, an exception is thrown with the following HResult value.
+    private static int NoCaptureDevicesHResult = -1072845856;
+
+    /// <summary>
+    /// Note that this method only checks the Settings->Privacy->Microphone setting, it does not handle
+    /// the Cortana/Dictation privacy check.
+    ///
+    /// You should perform this check every time the app gets focus, in case the user has changed
+    /// the setting while the app was suspended or not in focus.
+    /// </summary>
+    /// <returns>True, if the microphone is available.</returns>
+    public async static Task<bool> RequestMicrophonePermission()
+    {
+        try
         {
-            // If no microphone is present, an exception is thrown with the following HResult value.
-            private static int NoCaptureDevicesHResult = -1072845856;
+            // Request access to the audio capture device.
+            var settings = new MediaCaptureInitializationSettings();
+            settings.StreamingCaptureMode = StreamingCaptureMode.Audio;
+            settings.MediaCategory = MediaCategory.Speech;
+            var capture = new MediaCapture();
 
-            /// <summary>
-            /// Note that this method only checks the Settings->Privacy->Microphone setting, it does not handle
-            /// the Cortana/Dictation privacy check.
-            ///
-            /// You should perform this check every time the app gets focus, in case the user has changed
-            /// the setting while the app was suspended or not in focus.
-            /// </summary>
-            /// <returns>True, if the microphone is available.</returns>
-            public async static Task<bool> RequestMicrophonePermission()
+            await capture.InitializeAsync(settings);
+        }
+        catch (TypeLoadException)
+        {
+            // Thrown when a media player is not available.
+            var messageDialog = new Windows.UI.Popups.MessageDialog("Media player components are unavailable.");
+            await messageDialog.ShowAsync();
+            return false;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            // Thrown when permission to use the audio capture device is denied.
+            // If this occurs, show an error or disable recognition functionality.
+            return false;
+        }
+        catch (Exception exception)
+        {
+            // Thrown when an audio capture device is not present.
+            if (exception.HResult == NoCaptureDevicesHResult)
             {
-                try
-                {
-                    // Request access to the audio capture device.
-                    var settings = new MediaCaptureInitializationSettings();
-                    settings.StreamingCaptureMode = StreamingCaptureMode.Audio;
-                    settings.MediaCategory = MediaCategory.Speech;
-                    var capture = new MediaCapture();
-
-                    await capture.InitializeAsync(settings);
-                }
-                catch (TypeLoadException)
-                {
-                    // Thrown when a media player is not available.
-                    var messageDialog = new Windows.UI.Popups.MessageDialog("Media player components are unavailable.");
-                    await messageDialog.ShowAsync();
-                    return false;
-                }
-                catch (UnauthorizedAccessException)
-                {
-                    // Thrown when permission to use the audio capture device is denied.
-                    // If this occurs, show an error or disable recognition functionality.
-                    return false;
-                }
-                catch (Exception exception)
-                {
-                    // Thrown when an audio capture device is not present.
-                    if (exception.HResult == NoCaptureDevicesHResult)
-                    {
-                        var messageDialog = new Windows.UI.Popups.MessageDialog("No Audio Capture devices are present on this system.");
-                        await messageDialog.ShowAsync();
-                        return false;
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return true;
+                var messageDialog = new Windows.UI.Popups.MessageDialog("No Audio Capture devices are present on this system.");
+                await messageDialog.ShowAsync();
+                return false;
+            }
+            else
+            {
+                throw;
             }
         }
+        return true;
+    }
+}
     }
 }

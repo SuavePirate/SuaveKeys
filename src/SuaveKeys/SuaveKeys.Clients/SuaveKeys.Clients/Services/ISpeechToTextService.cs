@@ -8,6 +8,7 @@ namespace SuaveKeys.Clients.Services
 {
     public interface ISpeechToTextService
     {
+        Task InitializeAsync();
         Task StartAsync();
         event EventHandler<SpeechRecognizedEventArgs> OnSpeechRecognized;
     }

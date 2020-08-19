@@ -32,7 +32,7 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="SuaveKeys.Clients.UWP.App">
       <uap:VisualElements
-        DisplayName="SuaveKeys.Clients.UWP"
+        DisplayName="Suave Keys"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png"
         Description="SuaveKeys.Clients.UWP"
