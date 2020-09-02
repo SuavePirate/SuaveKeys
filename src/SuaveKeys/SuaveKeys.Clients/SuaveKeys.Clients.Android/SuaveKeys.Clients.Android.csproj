@@ -73,6 +73,8 @@
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\AndroidAuthClientSettings.cs" />
+    <Compile Include="Services\AndroidKeyboardService.cs" />
+    <Compile Include="Services\AndroidSpeechToTextService.cs" />
     <Compile Include="WebAuthenticationCallbackActivity.cs" />
   </ItemGroup>
   <ItemGroup>

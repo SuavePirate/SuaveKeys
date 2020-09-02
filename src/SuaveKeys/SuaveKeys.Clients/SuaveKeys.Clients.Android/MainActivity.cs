@@ -30,6 +30,8 @@ namespace SuaveKeys.Clients.Droid
 
             var container = TinyIoCContainer.Current;
             container.Register<IAuthClientSettings, AndroidAuthClientSettings>();
+            container.Register<IKeyboardService, AndroidKeyboardService>();
+            container.Register<ISpeechToTextService, AndroidSpeechToTextService>();
 
 
             LoadApplication(new App(container));
