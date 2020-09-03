@@ -14,6 +14,7 @@ using TinyIoC;
 using SuaveKeys.Clients.Models;
 using Android.Content;
 using Android.Speech;
+using Voicify.Sdk.Assistant.Api;
 
 namespace SuaveKeys.Clients.Droid
 {
@@ -36,9 +37,10 @@ namespace SuaveKeys.Clients.Droid
             var container = TinyIoCContainer.Current;
             container.Register<IAuthClientSettings, AndroidAuthClientSettings>();
             container.Register<IKeyboardService, AndroidKeyboardService>();
+            container.Register<ILanguageService, WitLanguageUnderstandingService>(); // NOTE: if we abstract this to be used in the other platforms, move to core app regs
             container.Register<ISpeechToTextService>((c, o) =>
             {
-                return new AndroidSpeechToTextService(this);
+                return new AndroidSpeechToTextService(this, c.Resolve<ILanguageService>(), new CustomAssistantApi("https://assistant.voicify.com"), c.Resolve<IAuthService>());
             });
 
 
