@@ -26,9 +26,12 @@ namespace SuaveKeys.Api.Controllers
         [HttpPost("PressKeyIntent")]
         public async Task<VoicifyResponse> PressKey([FromBody]VoicifyRequest request)
         {
-            var token = new JwtSecurityTokenHandler().ReadJwtToken(request.OriginalRequest.AccessToken);
             //if (!IsTokenValid(token))
-            if(string.IsNullOrEmpty(request.OriginalRequest.AccessToken))
+            var accessToken = request.OriginalRequest.AccessToken;
+            if(string.IsNullOrEmpty(accessToken))
+                request.OriginalRequest.Slots.TryGetValue("accessToken", out accessToken);
+
+            if(string.IsNullOrEmpty(accessToken))
                 return new VoicifyResponse
                 {
                     Data = new VoicifyResponseData
@@ -36,6 +39,8 @@ namespace SuaveKeys.Api.Controllers
                         Content = "You are not signed in. Please authenticate to press a key"
                     }
                 };
+
+            var token = new JwtSecurityTokenHandler().ReadJwtToken(accessToken);
             //var email = token?.Claims?.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
             var userClients = _keyboardHub.Clients.User(token?.Claims?.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value ?? "error");
             
@@ -53,15 +58,20 @@ namespace SuaveKeys.Api.Controllers
         [HttpPost("TypeIntent")]
         public async Task<VoicifyResponse> Type([FromBody]VoicifyRequest request)
         {
-            var token = new JwtSecurityTokenHandler().ReadJwtToken(request.OriginalRequest.AccessToken);
-            //if (!IsTokenValid(token))
-            //    return new VoicifyResponse
-            //    {
-            //        Data = new VoicifyResponseData
-            //        {
-            //            Content = "You are not signed in. Please authenticate to type"
-            //        }
-            //    };
+            var accessToken = request.OriginalRequest.AccessToken;
+            if (string.IsNullOrEmpty(accessToken))
+                request.OriginalRequest.Slots.TryGetValue("accessToken", out accessToken);
+
+            if (string.IsNullOrEmpty(accessToken))
+                return new VoicifyResponse
+                {
+                    Data = new VoicifyResponseData
+                    {
+                        Content = "You are not signed in. Please authenticate to type"
+                    }
+                };
+
+            var token = new JwtSecurityTokenHandler().ReadJwtToken(accessToken);
             var userClients = _keyboardHub.Clients.User(token?.Claims?.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value ?? "error");
 
             await userClients.SendAsync(KeyboardEvents.Type, request.OriginalRequest.Slots["phrase"]);

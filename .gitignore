@@ -349,3 +349,6 @@ MigrationBackup/
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
 /src/SuaveKeys/SuaveKeys.Api/appsettings.Staging.json
+/src/SuaveKeys/SuaveKeys.Clients/SuaveKeys.Clients/Models/WitKeys.cs
+/src/SuaveKeys/SuaveKeys.Clients/SuaveKeys.Clients/Models/Wit/WitKeys.cs
+/src/SuaveKeys/SuaveKeys.Clients/SuaveKeys.Clients/Models/VoicifyKeys.cs
