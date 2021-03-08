@@ -37,7 +37,6 @@ namespace SuaveKeys.Clients.Droid
             var container = TinyIoCContainer.Current;
             container.Register<IAuthClientSettings, AndroidAuthClientSettings>();
             container.Register<IKeyboardService, AndroidKeyboardService>();
-            container.Register<ILanguageService, WitLanguageUnderstandingService>(); // NOTE: if we abstract this to be used in the other platforms, move to core app regs
             container.Register<ISpeechToTextService>((c, o) =>
             {
                 return new AndroidSpeechToTextService(this, c.Resolve<ILanguageService>(), new CustomAssistantApi("https://assistant.voicify.com"), c.Resolve<IAuthService>());

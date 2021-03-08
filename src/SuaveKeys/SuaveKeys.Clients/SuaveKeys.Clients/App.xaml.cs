@@ -23,6 +23,7 @@ namespace SuaveKeys.Clients
 
         private void RegisterDependencies()
         {
+            Container.Register<ILanguageService, LuisLanguageUnderstandingService>(); 
             Container.Register<IAuthService, AuthService>();
             Container.Register<IKeyboardProfileService, KeyboardProfileService>();
         }
