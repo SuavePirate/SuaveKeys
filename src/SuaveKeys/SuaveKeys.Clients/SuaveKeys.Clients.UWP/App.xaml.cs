@@ -34,7 +34,7 @@ namespace SuaveKeys.Clients.UWP
         {
             this.InitializeComponent();
             this.Suspending += OnSuspending;
-            //this.UnhandledException += App_UnhandledException;
+            this.UnhandledException += App_UnhandledException;
             AppCenter.Start("6ca933bf-c944-42e3-bb81-bfef941d2320",
                    typeof(Analytics), typeof(Crashes));
         }
@@ -48,7 +48,7 @@ namespace SuaveKeys.Clients.UWP
 #else
             if (Debugger.IsAttached)
             {
-                //Debugger.Break();
+                Debugger.Break();
                 throw new Exception();
             }
 #endif
