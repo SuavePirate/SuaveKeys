@@ -162,6 +162,12 @@
     <PackageReference Include="Acr.UserDialogs">
       <Version>7.1.0.446</Version>
     </PackageReference>
+    <PackageReference Include="Microsoft.AppCenter.Analytics">
+      <Version>3.4.1</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.AppCenter.Crashes">
+      <Version>3.4.1</Version>
+    </PackageReference>
     <PackageReference Include="Sharpnado.Presentation.Forms">
       <Version>1.7.1</Version>
     </PackageReference>

@@ -61,6 +61,9 @@ void PressKeyCommand() {
   else if (arg == "tab") {
     Keyboard.press(KEY_TAB);
   }
+  else if (arg == "esc") {
+    Keyboard.press(KEY_ESC);
+  }
   else {
     
     Keyboard.press(arg[0]);

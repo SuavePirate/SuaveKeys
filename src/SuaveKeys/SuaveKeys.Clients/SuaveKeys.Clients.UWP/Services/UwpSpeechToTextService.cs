@@ -38,7 +38,7 @@ namespace SuaveKeys.Clients.UWP.Services
 
                 // Compile the dictation grammar by default.
                 await speechRecognizer.CompileConstraintsAsync();
-
+                speechRecognizer.Timeouts.EndSilenceTimeout = TimeSpan.FromMilliseconds(10);
                 // Start recognition.
                 var speechRecognitionResult = await speechRecognizer.RecognizeAsync();
 
