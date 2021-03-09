@@ -194,12 +194,10 @@ namespace SuaveKeys.Clients.UWP.Renderer
                 await SetPreviewRotationAsync();
             }
             // Start the 500ms timer to grab the frame and send to service
-            // NOTE: currently sending every 5 seconds while debugging
-            _timer.Interval = TimeSpan.FromMilliseconds(5000);
+            _timer.Interval = TimeSpan.FromMilliseconds(500);
             _timer.Tick += Timer_Tick;
             _timer.Start();
         }
-        private bool shouldSend = false;
         /// <summary>
         /// Handles a frame arrived event and renders the frame to the screen.
         /// </summary>

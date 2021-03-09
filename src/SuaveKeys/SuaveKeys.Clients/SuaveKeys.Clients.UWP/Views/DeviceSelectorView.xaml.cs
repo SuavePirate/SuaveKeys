@@ -197,7 +197,7 @@ namespace SuaveKeys.Clients.UWP.Views
             //string deviceSelector = Windows.Devices.SerialCommunication.SerialDevice.GetDeviceSelectorFromUsbVidPid(
             //                                                        ArduinoDevice.Vid, ArduinoDevice.Pid);
             var deviceSelector = SerialDevice.GetDeviceSelector("COM8");
-            var deviceSelector2 = SerialDevice.GetDeviceSelector("COM7");
+            var deviceSelector2 = SerialDevice.GetDeviceSelector("COM3");
             // Create a device watcher to look for instances of the Serial Device that match the device selector
             // used earlier.
 
