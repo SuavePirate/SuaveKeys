@@ -4,20 +4,27 @@ using SuaveKeys.Clients.Views;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.Devices.Enumeration;
 using Windows.Graphics.Display;
+using Windows.Graphics.Imaging;
+using Windows.Media;
 using Windows.Media.Capture;
+using Windows.Media.Capture.Frames;
+using Windows.Media.MediaProperties;
 using Windows.System.Display;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Imaging;
 using Xamarin.Forms.Platform.UWP;
 
 [assembly: ExportRenderer(typeof(CameraPreview), typeof(CameraPreviewRenderer))]
@@ -40,6 +47,7 @@ namespace SuaveKeys.Clients.UWP.Renderer
         bool _isPreviewing;
         bool _externalCamera;
         bool _mirroringPreview;
+        DispatcherTimer _timer = new DispatcherTimer();
 
         Application _app;
         protected override void OnElementChanged(ElementChangedEventArgs<CameraPreview> e)
@@ -170,6 +178,7 @@ namespace SuaveKeys.Clients.UWP.Renderer
         {
             // Prevent the device from sleeping while the preview is running
             _displayRequest.RequestActive();
+            
 
             // Setup preview source in UI and mirror if required
             _captureElement.Source = _mediaCapture;
@@ -182,10 +191,56 @@ namespace SuaveKeys.Clients.UWP.Renderer
             {
                 await SetPreviewRotationAsync();
             }
+            // Start the 500ms timer to grab the frame and send to service
+            _timer.Interval = TimeSpan.FromMilliseconds(500);
+            _timer.Tick += Timer_Tick;
+            _timer.Start();
+        }
+        private bool shouldSend = false;
+        /// <summary>
+        /// Handles a frame arrived event and renders the frame to the screen.
+        /// </summary>
+        WriteableBitmap tempWb;
+        private async void Timer_Tick(object sender, object e)
+        {
+            var previewProperties = _mediaCapture.VideoDeviceController.GetMediaStreamProperties(MediaStreamType.VideoPreview) as VideoEncodingProperties;
+            var width = (int)previewProperties.Width;
+            var height = (int)previewProperties.Height;
+            var videoFrame = new VideoFrame(BitmapPixelFormat.Rgba8, width, height);
+            if (tempWb == null)
+                tempWb = new WriteableBitmap(width, height);
+
+            using (var currentFrame = await _mediaCapture.GetPreviewFrameAsync(videoFrame))
+            {
+                SoftwareBitmap bitmap = currentFrame.SoftwareBitmap;
+                var detector = await Windows.Media.FaceAnalysis.FaceDetector.CreateAsync();
+                var supportedBitmapPixelFormats = Windows.Media.FaceAnalysis.FaceDetector.GetSupportedBitmapPixelFormats();
+                var convertedBitmap = SoftwareBitmap.Convert(bitmap, supportedBitmapPixelFormats.First());
+                var detectedFaces = await detector.DetectFacesAsync(convertedBitmap);
+
+                byte[] bytes;
+                bitmap.CopyToBuffer(tempWb.PixelBuffer);
+                using (Stream stream = tempWb.PixelBuffer.AsStream())
+                using (MemoryStream memoryStream = new MemoryStream())
+                {
+                    stream.CopyTo(memoryStream);
+                    bytes = memoryStream.ToArray();
+                    //return new FrameWithFaces
+                    //{
+                    //    FrameData = bytes,
+                    //    FrameWidth = width,
+                    //    FrameHeight = height,
+                    //    Faces = detectedFaces.Select(f =>
+                    //        new Rect { X = f.FaceBox.X, Y = f.FaceBox.Y, Width = f.FaceBox.Width, Height = f.FaceBox.Height }).ToArray()
+                    //};
+                }
+            }
         }
 
         async Task StopPreviewAsync()
         {
+            _timer.Tick -= Timer_Tick;
+            _timer.Stop();
             _isPreviewing = false;
             await _mediaCapture.StopPreviewAsync();
 
