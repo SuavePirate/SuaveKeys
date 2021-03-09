@@ -193,7 +193,8 @@ namespace SuaveKeys.Clients.UWP.Renderer
                 await SetPreviewRotationAsync();
             }
             // Start the 500ms timer to grab the frame and send to service
-            _timer.Interval = TimeSpan.FromMilliseconds(500);
+            // NOTE: currently sending every 5 seconds while debugging
+            _timer.Interval = TimeSpan.FromMilliseconds(5000);
             _timer.Tick += Timer_Tick;
             _timer.Start();
         }
@@ -218,7 +219,7 @@ namespace SuaveKeys.Clients.UWP.Renderer
                 var detector = await Windows.Media.FaceAnalysis.FaceDetector.CreateAsync();
                 var supportedBitmapPixelFormats = Windows.Media.FaceAnalysis.FaceDetector.GetSupportedBitmapPixelFormats();
                 var convertedBitmap = SoftwareBitmap.Convert(bitmap, supportedBitmapPixelFormats.First());
-                var detectedFaces = await detector.DetectFacesAsync(convertedBitmap);
+                //var detectedFaces = await detector.DetectFacesAsync(convertedBitmap);
 
                 byte[] bytes;
                 bitmap.CopyToBuffer(tempWb.PixelBuffer);
@@ -227,15 +228,7 @@ namespace SuaveKeys.Clients.UWP.Renderer
                 {
                     stream.CopyTo(memoryStream);
                     bytes = memoryStream.ToArray();
-                    var faces = new 
-                    {
-                        FrameData = bytes,
-                        FrameWidth = width,
-                        FrameHeight = height,
-                        Faces = detectedFaces.Select(f =>
-                            new Rect { X = f.FaceBox.X, Y = f.FaceBox.Y, Width = f.FaceBox.Width, Height = f.FaceBox.Height }).ToArray()
-                    };
-                    Console.WriteLine((faces));
+                    // TODO: fire the bytes to some abstract method to handle sending to azure then voicify
                 }
             }
             _timer.Start();
