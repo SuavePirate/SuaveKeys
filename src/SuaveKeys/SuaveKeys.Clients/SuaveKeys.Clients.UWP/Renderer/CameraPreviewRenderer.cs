@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.Devices.Enumeration;
+using Windows.Foundation;
 using Windows.Graphics.Display;
 using Windows.Graphics.Imaging;
 using Windows.Media;
@@ -203,6 +204,7 @@ namespace SuaveKeys.Clients.UWP.Renderer
         WriteableBitmap tempWb;
         private async void Timer_Tick(object sender, object e)
         {
+            _timer.Stop();
             var previewProperties = _mediaCapture.VideoDeviceController.GetMediaStreamProperties(MediaStreamType.VideoPreview) as VideoEncodingProperties;
             var width = (int)previewProperties.Width;
             var height = (int)previewProperties.Height;
@@ -225,16 +227,18 @@ namespace SuaveKeys.Clients.UWP.Renderer
                 {
                     stream.CopyTo(memoryStream);
                     bytes = memoryStream.ToArray();
-                    //return new FrameWithFaces
-                    //{
-                    //    FrameData = bytes,
-                    //    FrameWidth = width,
-                    //    FrameHeight = height,
-                    //    Faces = detectedFaces.Select(f =>
-                    //        new Rect { X = f.FaceBox.X, Y = f.FaceBox.Y, Width = f.FaceBox.Width, Height = f.FaceBox.Height }).ToArray()
-                    //};
+                    var faces = new 
+                    {
+                        FrameData = bytes,
+                        FrameWidth = width,
+                        FrameHeight = height,
+                        Faces = detectedFaces.Select(f =>
+                            new Rect { X = f.FaceBox.X, Y = f.FaceBox.Y, Width = f.FaceBox.Width, Height = f.FaceBox.Height }).ToArray()
+                    };
+                    Console.WriteLine((faces));
                 }
             }
+            _timer.Start();
         }
 
         async Task StopPreviewAsync()
