@@ -19,6 +19,7 @@ namespace SuaveKeys.Clients.Services
         {
             try
             {
+                frameStream.Position = 0;
                 var result = await _faceClient.Face.DetectWithStreamAsync(frameStream, true, true);
                 foreach(var face in result)
                 {

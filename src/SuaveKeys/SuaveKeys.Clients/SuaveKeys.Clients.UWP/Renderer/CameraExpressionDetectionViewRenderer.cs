@@ -207,8 +207,8 @@ namespace SuaveKeys.Clients.UWP.Renderer
         {
             _timer.Stop();
             var previewProperties = _mediaCapture.VideoDeviceController.GetMediaStreamProperties(MediaStreamType.VideoPreview) as VideoEncodingProperties;
-            var width = (int)previewProperties.Width;
-            var height = (int)previewProperties.Height;
+            var width = 1920;
+            var height = 1080;
             var videoFrame = new VideoFrame(BitmapPixelFormat.Rgba8, width, height);
             if (tempWb == null)
                 tempWb = new WriteableBitmap(width, height);
@@ -216,12 +216,7 @@ namespace SuaveKeys.Clients.UWP.Renderer
             using (var currentFrame = await _mediaCapture.GetPreviewFrameAsync(videoFrame))
             {
                 SoftwareBitmap bitmap = currentFrame.SoftwareBitmap;
-                var detector = await Windows.Media.FaceAnalysis.FaceDetector.CreateAsync();
-                var supportedBitmapPixelFormats = Windows.Media.FaceAnalysis.FaceDetector.GetSupportedBitmapPixelFormats();
-                var convertedBitmap = SoftwareBitmap.Convert(bitmap, supportedBitmapPixelFormats.First());
-                //var detectedFaces = await detector.DetectFacesAsync(convertedBitmap);
 
-                byte[] bytes;
                 bitmap.CopyToBuffer(tempWb.PixelBuffer);
                 using (Stream stream = tempWb.PixelBuffer.AsStream())
                 using (MemoryStream memoryStream = new MemoryStream())
