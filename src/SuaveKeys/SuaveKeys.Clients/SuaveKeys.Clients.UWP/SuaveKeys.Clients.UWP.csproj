@@ -99,6 +99,7 @@
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Renderer\CameraPreviewRenderer.cs" />
     <Compile Include="Renderer\DeviceSelectorRenderer.cs" />
     <Compile Include="Services\ArduinoSerialKeyboardService.cs" />
     <Compile Include="Services\UwpAuthClientSettings.cs" />
