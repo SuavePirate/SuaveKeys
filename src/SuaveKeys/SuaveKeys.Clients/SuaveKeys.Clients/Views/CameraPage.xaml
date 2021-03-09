@@ -7,11 +7,12 @@
     <ContentPage.Content>
         <StackLayout>
             <Button Text="Switch Camera" Clicked="Button_Clicked"/>
-            <views:CameraPreview 
+            <views:CameraExpressionDetectionView 
                 x:Name="CameraPreview"
                 Camera="Default"
-							 HorizontalOptions="FillAndExpand"
-							 VerticalOptions="FillAndExpand"/>
+                OnFrameStreamProcess="CameraPreview_OnFrameStreamProcess"
+				HorizontalOptions="FillAndExpand"
+				VerticalOptions="FillAndExpand"/>
 
         </StackLayout>
     </ContentPage.Content>

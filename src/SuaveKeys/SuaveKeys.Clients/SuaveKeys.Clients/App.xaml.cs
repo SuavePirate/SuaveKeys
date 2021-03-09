@@ -26,6 +26,7 @@ namespace SuaveKeys.Clients
             Container.Register<ILanguageService, LuisLanguageUnderstandingService>(); 
             Container.Register<IAuthService, AuthService>();
             Container.Register<IKeyboardProfileService, KeyboardProfileService>();
+            Container.Register<IFaceExpressionService, CognitiveServicesFaceExpressionService>();
         }
 
         public void SetMainPage()

@@ -28,10 +28,10 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using Xamarin.Forms.Platform.UWP;
 
-[assembly: ExportRenderer(typeof(CameraPreview), typeof(CameraPreviewRenderer))]
+[assembly: ExportRenderer(typeof(CameraExpressionDetectionView), typeof(CameraExpressionDetectionViewRenderer))]
 namespace SuaveKeys.Clients.UWP.Renderer
 {
-    public class CameraPreviewRenderer : ViewRenderer<CameraPreview, Windows.UI.Xaml.Controls.CaptureElement>
+    public class CameraExpressionDetectionViewRenderer : ViewRenderer<CameraExpressionDetectionView, Windows.UI.Xaml.Controls.CaptureElement>
     {
         readonly DisplayInformation _displayInformation = DisplayInformation.GetForCurrentView();
         DisplayOrientations _displayOrientation = DisplayOrientations.Portrait;
@@ -51,7 +51,7 @@ namespace SuaveKeys.Clients.UWP.Renderer
         DispatcherTimer _timer = new DispatcherTimer();
 
         Application _app;
-        protected override void OnElementChanged(ElementChangedEventArgs<CameraPreview> e)
+        protected override void OnElementChanged(ElementChangedEventArgs<CameraExpressionDetectionView> e)
         {
             base.OnElementChanged(e);
 
@@ -227,7 +227,7 @@ namespace SuaveKeys.Clients.UWP.Renderer
                 using (MemoryStream memoryStream = new MemoryStream())
                 {
                     stream.CopyTo(memoryStream);
-                    bytes = memoryStream.ToArray();
+                    Element?.ProcessFrameStream(memoryStream);
                     // TODO: fire the bytes to some abstract method to handle sending to azure then voicify
                 }
             }
