@@ -9,7 +9,7 @@
             <Button Text="Switch Camera" Clicked="Button_Clicked"/>
             <views:CameraExpressionDetectionView 
                 x:Name="CameraPreview"
-                Camera="Default"
+                Camera="Front"
                 OnFrameStreamProcess="CameraPreview_OnFrameStreamProcess"
 				HorizontalOptions="FillAndExpand"
 				VerticalOptions="FillAndExpand"/>
