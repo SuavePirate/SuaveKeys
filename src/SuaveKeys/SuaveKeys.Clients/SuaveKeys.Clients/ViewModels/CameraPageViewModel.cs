@@ -15,10 +15,13 @@ namespace SuaveKeys.Clients.ViewModels
             _faceExpressionService = App.Current.Container.Resolve<IFaceExpressionService>();
         }
 
-        public async Task ProcessFrame(Stream frameStream)
+        public async Task ProcessFrame(byte[] frame)
         {
-            var expression = await _faceExpressionService.GetExpressionMarkerAsync(frameStream);
-            Console.WriteLine(expression);
+            using (var frameStream = new MemoryStream(frame))
+            {
+                var expression = await _faceExpressionService.GetExpressionMarkerAsync(frameStream);
+                Console.WriteLine(expression);
+            }
         }
     }
 }

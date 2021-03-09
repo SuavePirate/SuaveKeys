@@ -19,6 +19,7 @@ using Windows.Media;
 using Windows.Media.Capture;
 using Windows.Media.Capture.Frames;
 using Windows.Media.MediaProperties;
+using Windows.Storage.Streams;
 using Windows.System.Display;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
@@ -179,7 +180,7 @@ namespace SuaveKeys.Clients.UWP.Renderer
         {
             // Prevent the device from sleeping while the preview is running
             _displayRequest.RequestActive();
-            
+
 
             // Setup preview source in UI and mirror if required
             _captureElement.Source = _mediaCapture;
@@ -207,8 +208,8 @@ namespace SuaveKeys.Clients.UWP.Renderer
         {
             _timer.Stop();
             var previewProperties = _mediaCapture.VideoDeviceController.GetMediaStreamProperties(MediaStreamType.VideoPreview) as VideoEncodingProperties;
-            var width = 1920;
-            var height = 1080;
+            var width = (int)previewProperties.Width;
+            var height = (int)previewProperties.Height;
             var videoFrame = new VideoFrame(BitmapPixelFormat.Rgba8, width, height);
             if (tempWb == null)
                 tempWb = new WriteableBitmap(width, height);
@@ -216,17 +217,43 @@ namespace SuaveKeys.Clients.UWP.Renderer
             using (var currentFrame = await _mediaCapture.GetPreviewFrameAsync(videoFrame))
             {
                 SoftwareBitmap bitmap = currentFrame.SoftwareBitmap;
-
-                bitmap.CopyToBuffer(tempWb.PixelBuffer);
-                using (Stream stream = tempWb.PixelBuffer.AsStream())
-                using (MemoryStream memoryStream = new MemoryStream())
+                var detector = await Windows.Media.FaceAnalysis.FaceDetector.CreateAsync();
+                var supportedBitmapPixelFormats = Windows.Media.FaceAnalysis.FaceDetector.GetSupportedBitmapPixelFormats();
+                var convertedBitmap = SoftwareBitmap.Convert(bitmap, supportedBitmapPixelFormats.First());
+                //var detectedFaces = await detector.DetectFacesAsync(convertedBitmap);
+                var bytes = await GetBytesFromBitmap(currentFrame.SoftwareBitmap, new BitmapBounds
                 {
-                    stream.CopyTo(memoryStream);
-                    Element?.ProcessFrameStream(memoryStream);
-                    // TODO: fire the bytes to some abstract method to handle sending to azure then voicify
-                }
+                    X = 0,
+                    Y = 0,
+                    Width = (uint)width,
+                    Height = (uint)height
+                });
+                //File.WriteAllBytes($"{Windows.Storage.ApplicationData.Current.LocalFolder}\\TestImage.jpg", bytes);
+                Element?.ProcessFrameStream(bytes);
+
             }
             _timer.Start();
+        }
+        private async Task<byte[]> GetBytesFromBitmap(SoftwareBitmap soft, BitmapBounds bounds)
+        {
+            byte[] array = null;
+
+            using (var ms = new InMemoryRandomAccessStream())
+            {
+                BitmapEncoder encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.JpegEncoderId, ms);
+                encoder.SetSoftwareBitmap(soft);
+
+                // apply the bounds of the face
+                encoder.BitmapTransform.Bounds = bounds;
+
+                await encoder.FlushAsync();
+
+                array = new byte[ms.Size];
+
+                await ms.ReadAsync(array.AsBuffer(), (uint)ms.Size, InputStreamOptions.None);
+            }
+
+            return array;
         }
 
         async Task StopPreviewAsync()

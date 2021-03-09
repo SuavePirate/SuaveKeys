@@ -17,16 +17,16 @@ namespace SuaveKeys.Clients.Views
             returnType: typeof(CameraOptions),
             declaringType: typeof(CameraExpressionDetectionView),
             defaultValue: CameraOptions.Default);
-        public event EventHandler<Stream> OnFrameStreamProcess;
+        public event EventHandler<byte[]> OnFrameStreamProcess;
         public CameraOptions Camera
         {
             get { return (CameraOptions)GetValue(CameraProperty); }
             set { SetValue(CameraProperty, value); }
         }
 
-        public void ProcessFrameStream(MemoryStream memoryStream)
+        public void ProcessFrameStream(byte[] frame)
         {
-            OnFrameStreamProcess?.Invoke(this, memoryStream);
+            OnFrameStreamProcess?.Invoke(this, frame);
         }
     }
 }

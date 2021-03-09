@@ -1,4 +1,5 @@
 ﻿using Microsoft.Azure.CognitiveServices.Vision.Face;
+using Microsoft.Azure.CognitiveServices.Vision.Face.Models;
 using SuaveKeys.Clients.Models.CogServices;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,12 @@ namespace SuaveKeys.Clients.Services
     public class CognitiveServicesFaceExpressionService : IFaceExpressionService
     {
         private readonly IFaceClient _faceClient;
+        private readonly List<FaceAttributeType?> faceAttributes = new List<FaceAttributeType?>
+        {
+            FaceAttributeType.Gender, FaceAttributeType.Age,
+            FaceAttributeType.Smile, FaceAttributeType.Emotion,
+            FaceAttributeType.Hair, FaceAttributeType.Accessories
+        };
         public CognitiveServicesFaceExpressionService()
         {
             _faceClient = new FaceClient(new ApiKeyServiceClientCredentials(CogServicesKeys.SubscriptionKey)) { Endpoint = CogServicesKeys.Endpoint };
@@ -19,15 +26,14 @@ namespace SuaveKeys.Clients.Services
         {
             try
             {
-                frameStream.Position = 0;
-                var result = await _faceClient.Face.DetectWithStreamAsync(frameStream, true, true);
-                foreach(var face in result)
+                var result = await _faceClient.Face.DetectWithStreamAsync(frameStream, true, false, faceAttributes);
+                foreach (var face in result)
                 {
-                    Console.WriteLine(face);
+                    if (face.FaceAttributes.Smile > 0.5) return "smile";
                 }
 
-                // TODO: handle the expressions we can check
                 return null;
+
             }
             catch (Exception ex)
             {

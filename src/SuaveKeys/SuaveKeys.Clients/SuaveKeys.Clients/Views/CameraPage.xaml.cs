@@ -39,9 +39,9 @@ namespace SuaveKeys.Clients.Views
             }
         }
 
-        private async void CameraPreview_OnFrameStreamProcess(object sender, System.IO.Stream e)
+        private async void CameraPreview_OnFrameStreamProcess(object sender, byte[] frame)
         {
-            await _vm.ProcessFrame(e);
+            await _vm.ProcessFrame(frame);
         }
     }
 }
