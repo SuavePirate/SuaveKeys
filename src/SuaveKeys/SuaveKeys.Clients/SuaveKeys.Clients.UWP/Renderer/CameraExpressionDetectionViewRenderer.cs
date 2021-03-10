@@ -215,10 +215,7 @@ namespace SuaveKeys.Clients.UWP.Renderer
             using (var currentFrame = await _mediaCapture.GetPreviewFrameAsync(videoFrame))
             {
                 SoftwareBitmap bitmap = currentFrame.SoftwareBitmap;
-                var detector = await Windows.Media.FaceAnalysis.FaceDetector.CreateAsync();
-                var supportedBitmapPixelFormats = Windows.Media.FaceAnalysis.FaceDetector.GetSupportedBitmapPixelFormats();
-                var convertedBitmap = SoftwareBitmap.Convert(bitmap, supportedBitmapPixelFormats.First());
-                //var detectedFaces = await detector.DetectFacesAsync(convertedBitmap);
+                
                 var bytes = await GetBytesFromBitmap(currentFrame.SoftwareBitmap, new BitmapBounds
                 {
                     X = 0,
@@ -226,7 +223,6 @@ namespace SuaveKeys.Clients.UWP.Renderer
                     Width = (uint)width,
                     Height = (uint)height
                 });
-                //File.WriteAllBytes($"{Windows.Storage.ApplicationData.Current.LocalFolder}\\TestImage.jpg", bytes);
                 Element?.ProcessFrameStream(bytes);
 
             }

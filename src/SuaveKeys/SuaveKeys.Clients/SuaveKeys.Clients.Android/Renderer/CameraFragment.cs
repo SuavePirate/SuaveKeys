@@ -173,6 +173,7 @@ namespace SuaveKeys.Clients.Droid.Renderer
                     }
 
                     initTaskSource = new TaskCompletionSource<CameraDevice>();
+                    
                     Manager.OpenCamera(cameraId, new CameraStateListener
                     {
                         OnOpenedAction = device => initTaskSource?.TrySetResult(device),
@@ -368,6 +369,7 @@ namespace SuaveKeys.Clients.Droid.Renderer
                     OnConfiguredAction = captureSession => tcs.SetResult(captureSession)
                 }, null);
 
+
                 session = await tcs.Task;
                 if (session != null)
                 {
@@ -546,6 +548,7 @@ namespace SuaveKeys.Clients.Droid.Renderer
 
         void TextureView.ISurfaceTextureListener.OnSurfaceTextureUpdated(SurfaceTexture surface)
         {
+            // TODO: this may be where we can grab the frame and execute on the timer
         }
 
         #endregion
@@ -566,7 +569,7 @@ namespace SuaveKeys.Clients.Droid.Renderer
     {
         public Action<CameraCaptureSession> OnConfigureFailedAction;
         public Action<CameraCaptureSession> OnConfiguredAction;
-
+        
         public override void OnConfigureFailed(CameraCaptureSession session) => OnConfigureFailedAction?.Invoke(session);
         public override void OnConfigured(CameraCaptureSession session) => OnConfiguredAction?.Invoke(session);
     }
