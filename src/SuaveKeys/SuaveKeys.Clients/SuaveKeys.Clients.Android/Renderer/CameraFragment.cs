@@ -543,10 +543,8 @@ namespace SuaveKeys.Clients.Droid.Renderer
             // Get the preview image width and height
 
             captureBitmap = Bitmap.CreateBitmap(width, height, Bitmap.Config.Argb8888);
-            Device.StartTimer(TimeSpan.FromSeconds(10), () =>
+            Device.StartTimer(TimeSpan.FromMilliseconds(500), () =>
             {
-                // called every 1 second
-                // TODO: change to 500 ms
                 _readyToProcessFrame = true;
                 return true; // return true to repeat counting, false to stop timer
             });
