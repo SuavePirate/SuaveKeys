@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Android;
 using Android.Content;
@@ -17,6 +20,7 @@ using Java.Lang;
 using Java.Util.Concurrent;
 using SuaveKeys.Clients.Views;
 using Xamarin.CommunityToolkit.UI.Views;
+using Xamarin.Forms;
 using Xamarin.Forms.Platform.Android;
 
 namespace SuaveKeys.Clients.Droid.Renderer
@@ -173,7 +177,7 @@ namespace SuaveKeys.Clients.Droid.Renderer
                     }
 
                     initTaskSource = new TaskCompletionSource<CameraDevice>();
-                    
+
                     Manager.OpenCamera(cameraId, new CameraStateListener
                     {
                         OnOpenedAction = device => initTaskSource?.TrySetResult(device),
@@ -530,13 +534,25 @@ namespace SuaveKeys.Clients.Droid.Renderer
         #endregion
 
         #region TextureView.ISurfaceTextureListener
-
+        Bitmap captureBitmap;
+        bool _readyToProcessFrame = false;
         async void TextureView.ISurfaceTextureListener.OnSurfaceTextureAvailable(SurfaceTexture surface, int width, int height)
         {
             View?.SetBackgroundColor(Element.BackgroundColor.ToAndroid());
             cameraTemplate = CameraTemplate.Preview;
+            // Get the preview image width and height
+
+            captureBitmap = Bitmap.CreateBitmap(width, height, Bitmap.Config.Argb8888);
+            Device.StartTimer(TimeSpan.FromSeconds(10), () =>
+            {
+                // called every 1 second
+                // TODO: change to 500 ms
+                _readyToProcessFrame = true;
+                return true; // return true to repeat counting, false to stop timer
+            });
             await RetrieveCameraDevice();
         }
+
 
         bool TextureView.ISurfaceTextureListener.OnSurfaceTextureDestroyed(SurfaceTexture surface)
         {
@@ -548,7 +564,17 @@ namespace SuaveKeys.Clients.Droid.Renderer
 
         void TextureView.ISurfaceTextureListener.OnSurfaceTextureUpdated(SurfaceTexture surface)
         {
-            // TODO: this may be where we can grab the frame and execute on the timer
+            if (captureBitmap != null && _readyToProcessFrame)
+            {
+                _readyToProcessFrame = false;
+                using (var stream = new MemoryStream())
+                {
+                    var bitmap = texture.GetBitmap(captureBitmap);
+                    bitmap.Compress(Bitmap.CompressFormat.Jpeg, 100, stream);
+                    var bytes = stream.ToArray();
+                    Element?.ProcessFrameStream(bytes);
+                }
+            }
         }
 
         #endregion
@@ -569,7 +595,7 @@ namespace SuaveKeys.Clients.Droid.Renderer
     {
         public Action<CameraCaptureSession> OnConfigureFailedAction;
         public Action<CameraCaptureSession> OnConfiguredAction;
-        
+
         public override void OnConfigureFailed(CameraCaptureSession session) => OnConfigureFailedAction?.Invoke(session);
         public override void OnConfigured(CameraCaptureSession session) => OnConfiguredAction?.Invoke(session);
     }
