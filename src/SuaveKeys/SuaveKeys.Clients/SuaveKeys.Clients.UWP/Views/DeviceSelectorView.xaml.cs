@@ -197,13 +197,16 @@ namespace SuaveKeys.Clients.UWP.Views
             //string deviceSelector = Windows.Devices.SerialCommunication.SerialDevice.GetDeviceSelectorFromUsbVidPid(
             //                                                        ArduinoDevice.Vid, ArduinoDevice.Pid);
             var deviceSelector = SerialDevice.GetDeviceSelector("COM8");
+            var deviceSelector2 = SerialDevice.GetDeviceSelector("COM3");
             // Create a device watcher to look for instances of the Serial Device that match the device selector
             // used earlier.
 
             var deviceWatcher = DeviceInformation.CreateWatcher(deviceSelector);
+            var deviceWatcher2 = DeviceInformation.CreateWatcher(deviceSelector2);
 
             // Allow the EventHandlerForDevice to handle device watcher events that relates or effects our device (i.e. device removal, addition, app suspension/resume)
             AddDeviceWatcher(deviceWatcher, deviceSelector);
+            AddDeviceWatcher(deviceWatcher2, deviceSelector2);
         }
 
         private void StartHandlingAppEvents()

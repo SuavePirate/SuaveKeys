@@ -17,7 +17,7 @@ namespace SuaveKeys.Clients.UWP.Services
     public class ArduinoSerialKeyboardService : IKeyboardService
     {
         private readonly IKeyboardProfileService _keyboardProfileService;
-
+        private bool _isSending = false;
         public event EventHandler<KeyboardEventArgs> OnKeyEvent;
         public ArduinoSerialKeyboardService(IKeyboardProfileService keyboardProfileService)
         {
@@ -32,6 +32,12 @@ namespace SuaveKeys.Clients.UWP.Services
             {
                 try
                 {
+                    // TEMP test, if we are already sending something, just skip this command
+                    // in the future, we will queue it
+                    if (_isSending)
+                        return;
+                    
+                    // if we are firing a command, sleep first
                     // check for macros that match phrase
                     // if macro exists, run the macro
                     OnKeyEvent?.Invoke(this, new KeyboardEventArgs { KeyInfo = $"Key: {keyPhrase}" });
@@ -44,7 +50,10 @@ namespace SuaveKeys.Clients.UWP.Services
                         {
                             switch(macroEvent.EventType)
                             {
-                                case MacroEventType.KeyPress: await SendPressKeyEvent(macroEvent.Key, macroEvent.HoldTimeMilliseconds > 50 ? macroEvent.HoldTimeMilliseconds : 50);
+                                case MacroEventType.KeyPress:
+                                    _isSending = true;
+                                    await SendPressKeyEvent(macroEvent.Key, macroEvent.HoldTimeMilliseconds > 50 ? macroEvent.HoldTimeMilliseconds : 50);
+                                    _isSending = false;
                                     break;
                                 case MacroEventType.Pause: Thread.Sleep(macroEvent.HoldTimeMilliseconds);
                                     break;
@@ -61,8 +70,9 @@ namespace SuaveKeys.Clients.UWP.Services
                         OnKeyEvent?.Invoke(this, new KeyboardEventArgs { KeyInfo = $"Mapped Key: {keyPhrase}" });
                     }
                     // if no commands, send the original phrase
-
+                    _isSending = true;
                     await SendPressKeyEvent(keyPhrase);
+                    _isSending = false;
                 }
                 catch (OperationCanceledException /*exception*/)
                 {

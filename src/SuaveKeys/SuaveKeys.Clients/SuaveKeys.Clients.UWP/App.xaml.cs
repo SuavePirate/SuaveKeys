@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Microsoft.AppCenter;
+using Microsoft.AppCenter.Analytics;
+using Microsoft.AppCenter.Crashes;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -32,6 +35,8 @@ namespace SuaveKeys.Clients.UWP
             this.InitializeComponent();
             this.Suspending += OnSuspending;
             this.UnhandledException += App_UnhandledException;
+            AppCenter.Start("6ca933bf-c944-42e3-bb81-bfef941d2320",
+                   typeof(Analytics), typeof(Crashes));
         }
 
         private void App_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
@@ -39,11 +44,12 @@ namespace SuaveKeys.Clients.UWP
             e.Handled = true;
 #if !DEBUG
    // log
-            global::System.Console.WriteLine(e.Exceptions);
+            global::System.Console.WriteLine(e);
 #else
             if (Debugger.IsAttached)
             {
                 Debugger.Break();
+                throw new Exception();
             }
 #endif
         }

@@ -12,6 +12,7 @@
     <views:KeyboardPage />
     <views:ProfilesPage/>
     <views:MicrophonePage/>
+    <views:CameraPage/>
     <views:CommandLogPage/>
     <views:SettingsPage/>
 </TabbedPage>

@@ -352,3 +352,5 @@ MigrationBackup/
 /src/SuaveKeys/SuaveKeys.Clients/SuaveKeys.Clients/Models/WitKeys.cs
 /src/SuaveKeys/SuaveKeys.Clients/SuaveKeys.Clients/Models/Wit/WitKeys.cs
 /src/SuaveKeys/SuaveKeys.Clients/SuaveKeys.Clients/Models/VoicifyKeys.cs
+/src/SuaveKeys/SuaveKeys.Clients/SuaveKeys.Clients/Models/Luis/LuisKeys.cs
+/src/SuaveKeys/SuaveKeys.Clients/SuaveKeys.Clients/Models/CogServices/CogServicesKeys.cs
